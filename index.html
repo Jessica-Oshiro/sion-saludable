@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sión Saludable — Productos Naturales y Comidas Caseras</title>
+  <title>Sión Saludable — Naturaleza de verdad, a tu puerta</title>
   <meta name="description" content="Productos naturales, panificados artesanales y comidas saludables. Pedidos por WhatsApp desde Liniers, CABA.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,11 +15,15 @@
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-inner container">
-      <a href="index.html" class="nav-logo">Sión Saludable</a>
+      <a href="index.html" class="nav-logo">
+        <img src="assets/logo.png" alt="Sión Saludable" class="nav-logo-img">
+        <span class="nav-logo-text">Sión Saludable</span>
+      </a>
       <ul class="nav-links">
-        <li><a href="index.html">Inicio</a></li>
+        <li><a href="index.html" class="active">Inicio</a></li>
         <li><a href="catalogo.html">Catálogo</a></li>
         <li><a href="contacto.html">Contacto</a></li>
+        <li><a href="https://wa.me/5491127481482?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido" target="_blank" class="nav-cta">WhatsApp</a></li>
       </ul>
       <button class="nav-toggle" aria-label="Menú" onclick="toggleMenu()">
         <span></span><span></span><span></span>
@@ -36,14 +40,15 @@
   <section class="hero">
     <div class="hero-stripe"></div>
     <div class="container hero-content">
+      <img src="assets/logo.png" alt="Sión Saludable" class="hero-logo">
       <span class="hero-eyebrow">Liniers, Buenos Aires</span>
-      <h1 class="hero-title">Naturaleza en<br>cada producto</h1>
-      <p class="hero-sub">Productos naturales, panificados artesanales<br>y comidas caseras con ingredientes de verdad.</p>
+      <h1 class="hero-title">Naturaleza de verdad,<br>a tu puerta</h1>
+      <p class="hero-sub">Productos naturales y comidas caseras saludables, elaborados con cariño en Liniers, Buenos Aires.</p>
       <div class="hero-actions">
         <a href="catalogo.html" class="btn btn-primary">Ver catálogo</a>
         <a href="https://wa.me/5491127481482?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido" target="_blank" class="btn btn-outline">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Hacer un pedido
+          Escribinos por WhatsApp
         </a>
       </div>
     </div>
@@ -55,23 +60,23 @@
       <div class="props-grid">
         <div class="prop-item">
           <div class="prop-icon">🌿</div>
-          <h3>Productos naturales</h3>
-          <p>Yuyos, miel, propóleo, tinturas madre y más. Seleccionados con cuidado.</p>
+          <h3>100% natural</h3>
+          <p>Ingredientes reales, sin aditivos ni atajos.</p>
         </div>
         <div class="prop-item">
-          <div class="prop-icon">🍞</div>
-          <h3>Elaboración propia</h3>
-          <p>Pan, budines y panificados artesanales hechos con amor en casa.</p>
+          <div class="prop-icon">👐</div>
+          <h3>Hecho a mano</h3>
+          <p>Elaboración artesanal, en pequeños lotes.</p>
         </div>
         <div class="prop-item">
-          <div class="prop-icon">🥗</div>
-          <h3>Comidas saludables</h3>
-          <p>Viandas caseras con ingredientes frescos y reales. Bajo pedido.</p>
+          <div class="prop-icon">🚫</div>
+          <h3>Sin conservantes</h3>
+          <p>Como en casa: fresco y de verdad.</p>
         </div>
         <div class="prop-item">
-          <div class="prop-icon">💬</div>
-          <h3>Atención personalizada</h3>
-          <p>Pedidos y consultas directo por WhatsApp. Trato cercano y humano.</p>
+          <div class="prop-icon">🚲</div>
+          <h3>Cerca tuyo</h3>
+          <p>Entregas en Liniers y zonas cercanas.</p>
         </div>
       </div>
     </div>
@@ -81,30 +86,31 @@
   <section class="featured section bg-cream">
     <div class="container">
       <div class="section-header">
-        <span class="section-eyebrow">Lo más elegido</span>
-        <h2>Productos destacados</h2>
+        <div class="section-header-text">
+          <span class="section-eyebrow">Lo más elegido</span>
+          <h2>Productos destacados</h2>
+        </div>
+        <a href="catalogo.html" class="section-header-link">Ver todo el catálogo →</a>
       </div>
+      <div class="section-rule"></div>
       <div class="products-grid" id="featuredProducts"></div>
-      <div class="section-footer">
-        <a href="catalogo.html" class="btn btn-primary">Ver catálogo completo</a>
-      </div>
     </div>
   </section>
 
   <!-- NOSOTROS -->
-  <section class="about section">
-    <div class="container about-inner">
+  <section class="about">
+    <div class="about-inner">
       <div class="about-text">
         <span class="section-eyebrow">Nuestra historia</span>
-        <h2>Hecho con experiencia y amor</h2>
-        <p>Sión Saludable nació de años de experiencia en el mundo de la alimentación natural. Cada producto que ofrecemos está elegido con criterio, y cada preparación casera se hace con los mismos ingredientes que usaríamos en nuestra propia mesa.</p>
-        <p>Trabajamos desde Liniers, Buenos Aires, con entrega a domicilio y retiro en el local.</p>
+        <h2>Quiénes somos</h2>
+        <p>Sión Saludable nació de las manos y la experiencia de Marta, una apasionada de la alimentación natural con más de 20 años en el mundo de los productos saludables. Lo que empezó como un conocimiento profundo de yuyos, remedios naturales y cocina casera, hoy se convierte en un emprendimiento con corazón.</p>
+        <p>Cada producto que ofrecemos fue elegido con criterio. Cada preparación casera se hace con los mismos ingredientes que pondríamos en nuestra propia mesa. Sin apuros, sin atajos.</p>
+        <p class="about-highlight">Desde Liniers, Buenos Aires, llevamos naturaleza de verdad a tu puerta.</p>
         <a href="contacto.html" class="btn btn-outline-dark">Contactanos</a>
       </div>
       <div class="about-visual">
         <div class="about-badge">
-          <span class="badge-num">+20</span>
-          <span class="badge-label">años de experiencia<br>en alimentación natural</span>
+          <span>foto: Marta preparando<br>productos en su cocina</span>
         </div>
       </div>
     </div>
@@ -113,11 +119,11 @@
   <!-- CTA WHATSAPP -->
   <section class="cta-wa section">
     <div class="container cta-wa-inner">
-      <h2>¿Querés hacer un pedido?</h2>
-      <p>Escribinos por WhatsApp y te atendemos personalmente.</p>
+      <h2>¿Listo para hacer tu pedido?</h2>
+      <p>Escribinos por WhatsApp y te contamos qué tenemos fresco esta semana.</p>
       <a href="https://wa.me/5491127481482?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido" target="_blank" class="btn btn-wa">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Escribir por WhatsApp
+        Escribinos por WhatsApp
       </a>
     </div>
   </section>
@@ -126,17 +132,31 @@
   <footer class="footer">
     <div class="container footer-inner">
       <div class="footer-brand">
-        <span class="footer-logo">Sión Saludable</span>
-        <p>Productos naturales y comidas caseras.<br>Liniers, Buenos Aires.</p>
+        <div class="footer-logo">
+          <img src="assets/logo.png" alt="Sión Saludable" class="footer-logo-img">
+          <span class="footer-logo-text">Sión Saludable</span>
+        </div>
+        <p>Productos naturales y comidas caseras saludables desde Liniers, Buenos Aires.</p>
       </div>
-      <div class="footer-links">
-        <a href="index.html">Inicio</a>
-        <a href="catalogo.html">Catálogo</a>
-        <a href="contacto.html">Contacto</a>
+      <div>
+        <div class="footer-col-title">Navegación</div>
+        <div class="footer-links">
+          <a href="index.html">Inicio</a>
+          <a href="catalogo.html">Catálogo</a>
+          <a href="contacto.html">Contacto</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Seguinos</div>
+        <div class="footer-links">
+          <a href="https://wa.me/5491127481482" target="_blank" rel="noopener">WhatsApp</a>
+          <a href="https://www.instagram.com/sion.saludable?igsh=c2d1MmdjdTQxOWY4" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://www.facebook.com/share/19DMVAssis/" target="_blank" rel="noopener">Facebook</a>
+        </div>
       </div>
     </div>
     <div class="footer-bottom container">
-      <p>© 2025 Sión Saludable. Hecho con 🌿 en Buenos Aires.</p>
+      <p>© 2026 Sión Saludable — Liniers, Buenos Aires.</p>
     </div>
   </footer>
 
