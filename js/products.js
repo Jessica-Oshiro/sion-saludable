@@ -15,8 +15,8 @@ const PRODUCTS = [
   { id: 13, name: "Graviola + Noni", brand: "Prodenza", category: "naturales", emoji: "🌺", description: "Combinación potente de graviola y noni. Antioxidante y fortalecedor del sistema inmune.", featured: false },
 
   // PANIFICADOS Y DULCES
-  { id: 14, name: "Pan Casero", brand: "Elaboración propia", category: "panificados", emoji: "🍞", description: "Pan artesanal elaborado con ingredientes seleccionados. De campo, de molde o con semillas. Pedido con 24 hs.", featured: true },
-  { id: 15, name: "Budín Dulce", brand: "Elaboración propia", category: "panificados", emoji: "🍰", description: "Budines caseros sin conservantes. Sabores: banana, zanahoria, vainilla. Pedido con 24 hs.", featured: true },
+  { id: 14, name: "Pan Casero", brand: "Elaboración propia", category: "panificados", emoji: "🍞", description: "Pan artesanal elaborado con ingredientes seleccionados. De molde, árabe, integral o con semillas. Pedido con 24 hs.", featured: true },
+  { id: 15, name: "Budín Dulce", brand: "Elaboración propia", category: "panificados", emoji: "🍰", description: "Budines caseros sin conservantes. Sabores: banana, zanahoria, vainilla, entre otros. Pedido con 24 hs.", featured: true },
   { id: 16, name: "Bizcochuelo", brand: "Elaboración propia", category: "panificados", emoji: "🎂", description: "Bizcochuelo esponjoso casero con variantes de temporada. Pedido con 24 hs.", featured: false },
   { id: 17, name: "Granola Artesanal", brand: "Elaboración propia", category: "panificados", emoji: "🌾", description: "Granola casera con miel, frutos secos y semillas. Sin conservantes.", featured: true },
   { id: 18, name: "Mermelada Casera", brand: "Elaboración propia", category: "panificados", emoji: "🫙", description: "Mermeladas endulzadas con miel o stevia. Sin conservantes artificiales.", featured: false },
