@@ -62,15 +62,15 @@ h3 { font-size: 1.3rem; }
 
 /* ── NAV ── */
 .nav { position: sticky; top: 0; z-index: 100; background: var(--cream); border-bottom: 3px solid var(--green); }
-.nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 76px; }
-.nav-logo { display: flex; align-items: center; gap: 12px; color: var(--green); }
-.nav-logo-img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
-.nav-logo-text { font-family: 'Barlow Condensed', sans-serif; font-size: 1.15rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1; }
-.nav-links { display: flex; align-items: center; gap: 28px; }
-.nav-links a { font-size: 14px; color: var(--green); font-weight: 700; transition: color 0.2s; padding-bottom: 4px; border-bottom: 3px solid transparent; }
+.nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 96px; }
+.nav-logo { display: flex; align-items: center; gap: 14px; color: var(--green); }
+.nav-logo-img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+.nav-logo-text { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1; }
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a { font-size: 15px; color: var(--green); font-weight: 700; transition: color 0.2s; padding-bottom: 4px; border-bottom: 3px solid transparent; }
 .nav-links a:hover, .nav-links a.active { color: var(--gold); }
 .nav-links a.active { border-bottom-color: var(--gold); }
-.nav-cta { background: var(--green); color: var(--cream) !important; text-decoration: none; font-weight: 700 !important; padding: 10px 20px; border-radius: var(--radius-pill); border-bottom: none !important; }
+.nav-cta.nav-cta { background: var(--green); color: var(--cream) !important; text-decoration: none; font-weight: 700 !important; padding: 13px 24px; border-radius: var(--radius-pill); border-bottom: none !important; font-size: 15px; }
 .nav-cta:hover { background: var(--green-light); color: var(--cream) !important; }
 .nav-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
 .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--green); border-radius: 2px; transition: all 0.2s; }
