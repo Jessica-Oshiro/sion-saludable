@@ -10,7 +10,10 @@ function createProductCard(product) {
 
   return `
     <div class="product-card" data-category="${product.category}" data-id="${product.id}">
-      <div class="product-emoji">${product.emoji}</div>
+      <div class="product-card-top">
+        <div class="product-emoji">${product.emoji}</div>
+        <span class="product-category-badge">${CATEGORY_LABELS[product.category]}</span>
+      </div>
       <div class="product-info">
         <h3 class="product-name">${product.name}</h3>
         ${product.brand ? `<span class="product-brand">${product.brand}</span>` : ""}
