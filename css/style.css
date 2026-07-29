@@ -159,12 +159,6 @@ h3 { font-size: 1.3rem; }
 .page-header h1 { color: var(--green); margin-bottom: 14px; text-transform: uppercase; font-size: clamp(2.4rem, 5vw, 3.8rem); }
 .page-header p { color: var(--text-soft); font-size: 18px; max-width: 540px; margin: 0 auto; }
 
-/* ── CATALOG ── */
-.catalog-group { margin-bottom: 56px; }
-.catalog-group:last-child { margin-bottom: 0; }
-.catalog-group-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--green); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
-.products-subgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; align-items: stretch; }
-
 /* ── FILTROS ── */
 .filters { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 40px; }
 .filter-btn { font-family: 'DM Sans', sans-serif; padding: 12px 22px; border-radius: var(--radius-pill); border: 2px solid var(--green); background: var(--white); font-size: 15px; font-weight: 700; color: var(--green); cursor: pointer; transition: all 0.2s; }
@@ -258,7 +252,7 @@ h3 { font-size: 1.3rem; }
 }
 
 @media (max-width: 480px) {
-  .products-grid, .products-subgrid { grid-template-columns: 1fr; }
+  .products-grid { grid-template-columns: 1fr; }
   .filters { gap: 6px; }
   .filter-btn { font-size: 12px; padding: 8px 16px; }
 }

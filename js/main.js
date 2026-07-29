@@ -43,22 +43,7 @@ function renderCatalog(filter = "all") {
   const el = document.getElementById("catalogProducts");
   if (!el) return;
   const filtered = filter === "all" ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
-
-  if (filter === "all") {
-    // Agrupar por categoría
-    let html = "";
-    const cats = [...new Set(PRODUCTS.map(p => p.category))];
-    cats.forEach(cat => {
-      const items = PRODUCTS.filter(p => p.category === cat);
-      html += `<div class="catalog-group">
-        <h2 class="catalog-group-title">${CATEGORY_LABELS[cat]}</h2>
-        <div class="products-subgrid">${items.map(createProductCard).join("")}</div>
-      </div>`;
-    });
-    el.innerHTML = html;
-  } else {
-    el.innerHTML = `<div class="products-subgrid">${filtered.map(createProductCard).join("")}</div>`;
-  }
+  el.innerHTML = filtered.map(createProductCard).join("");
 }
 
 /* ── CARRITO ── */
