@@ -148,7 +148,7 @@ h3 { font-size: 1.3rem; }
 
 /* ── CTA WHATSAPP ── */
 .cta-wa { text-align: center; }
-.cta-wa h2 { color: var(--green); margin-bottom: 12px; }
+.cta-wa h2 { color: var(--green); margin-bottom: 12px; text-transform: uppercase; }
 .cta-wa p { color: var(--text-soft); font-size: 15px; margin-bottom: 28px; }
 
 /* ── PAGE HEADER ── */
