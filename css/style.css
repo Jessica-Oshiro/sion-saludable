@@ -135,16 +135,16 @@ h3 { font-size: 1.3rem; }
 /* ── ABOUT ── */
 .about { background: var(--green); border-radius: var(--radius); margin: 0 24px; padding: 56px 40px; }
 .about-inner { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; max-width: 1120px; margin: 0 auto; padding: 0; }
-.about-text { max-width: 480px; }
-.about-text .section-eyebrow { color: var(--yellow); }
-.about-text h2 { margin-bottom: 18px; color: var(--yellow); }
-.about-text p { font-size: 15px; color: var(--cream); line-height: 1.7; margin-bottom: 14px; }
+.about-text { max-width: 520px; }
+.about-text .section-eyebrow { color: var(--yellow); font-size: 13px; }
+.about-text h2 { margin-bottom: 20px; color: var(--yellow); font-size: clamp(2rem, 3.6vw, 2.8rem); }
+.about-text p { font-size: 17px; color: var(--cream); line-height: 1.75; margin-bottom: 16px; }
 .about-text .about-highlight { color: var(--yellow); font-weight: 700; }
-.about-text .btn-outline-dark { border-color: var(--cream); color: var(--cream); margin-top: 8px; }
+.about-text .btn-outline-dark { border-color: var(--cream); color: var(--cream); margin-top: 8px; font-size: 16px; }
 .about-text .btn-outline-dark:hover { background: var(--cream); color: var(--green); }
 .about-visual { display: flex; justify-content: center; align-items: center; }
-.about-badge { aspect-ratio: 4/5; width: 100%; border-radius: var(--radius); background: repeating-linear-gradient(135deg, #3A6420, #3A6420 14px, #345B1C 14px, #345B1C 28px); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; }
-.about-badge span { font-family: monospace; color: var(--cream); font-size: 13px; letter-spacing: 0.5px; line-height: 1.6; }
+.about-badge { aspect-ratio: 4/5; width: 100%; border-radius: var(--radius); border: 3px solid var(--gold); overflow: hidden; }
+.about-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ── CTA WHATSAPP ── */
 .cta-wa { text-align: center; }
