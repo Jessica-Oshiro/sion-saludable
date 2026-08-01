@@ -195,8 +195,8 @@ h3 { font-size: 1.3rem; }
 .location-card h3 { color: var(--green); font-size: 1.4rem; }
 .location-card p { font-size: 15px; color: var(--text-soft); line-height: 1.6; }
 .location-card p.small { font-size: 13px; color: var(--text-muted); }
-.location-visual { aspect-ratio: 16/10; border-radius: var(--radius); background: repeating-linear-gradient(135deg, #DED2B4, #DED2B4 14px, #D3C6A5 14px, #D3C6A5 28px); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; }
-.location-visual span { font-family: monospace; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+.location-visual { height: 300px; border-radius: var(--radius); border: 3px solid var(--gold); overflow: hidden; }
+.location-visual iframe { width: 100%; height: 100%; display: block; }
 
 .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; margin-top: 48px; }
 .contact-info h2 { margin-bottom: 20px; color: var(--green); }
