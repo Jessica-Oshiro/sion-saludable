@@ -22,13 +22,10 @@ function createProductCard(product) {
       <div class="product-actions">
         ${isConsult
           ? `<a href="https://wa.me/${WA_NUMBER}?text=Hola%2C%20quiero%20consultar%20disponibilidad%20de%3A%20${encodeURIComponent(product.name)}" target="_blank" class="btn btn-consult">Consultar disponibilidad</a>`
-          : `<div class="qty-row">
-              <div class="qty-stepper">
-                <button type="button" class="qty-btn" aria-label="Quitar uno" onclick="decrementQty(${product.id})">−</button>
-                <span class="qty-value">${qty}</span>
-                <button type="button" class="qty-btn" aria-label="Sumar uno" onclick="incrementQty(${product.id})">+</button>
-              </div>
-              <button type="button" class="btn btn-add" onclick="incrementQty(${product.id})">Agregar al pedido</button>
+          : `<div class="qty-stepper">
+              <button type="button" class="qty-btn" aria-label="Quitar uno" onclick="decrementQty(${product.id})">−</button>
+              <span class="qty-value">${qty}</span>
+              <button type="button" class="qty-btn" aria-label="Sumar uno" onclick="incrementQty(${product.id})">+</button>
             </div>`
         }
       </div>
@@ -57,10 +54,13 @@ function renderAll() {
 }
 
 /* ── CARRITO ── */
+let cartOpen = false;
+
 function incrementQty(id) {
   cart[id] = (cart[id] || 0) + 1;
   updateCartBar();
   renderAll();
+  renderCartDrawer();
 }
 
 function decrementQty(id) {
@@ -68,12 +68,21 @@ function decrementQty(id) {
   if (next <= 0) delete cart[id]; else cart[id] = next;
   updateCartBar();
   renderAll();
+  renderCartDrawer();
+}
+
+function removeFromCart(id) {
+  delete cart[id];
+  updateCartBar();
+  renderAll();
+  renderCartDrawer();
 }
 
 function clearCart() {
   cart = {};
   updateCartBar();
   renderAll();
+  renderCartDrawer();
 }
 
 function updateCartBar() {
@@ -87,6 +96,39 @@ function updateCartBar() {
   } else {
     bar.classList.remove("visible");
   }
+}
+
+function toggleCart() {
+  const drawer = document.getElementById("cartDrawer");
+  const overlay = document.getElementById("cartOverlay");
+  if (!drawer || !overlay) return;
+  cartOpen = !cartOpen;
+  drawer.classList.toggle("open", cartOpen);
+  overlay.classList.toggle("open", cartOpen);
+  if (cartOpen) renderCartDrawer();
+}
+
+function renderCartDrawer() {
+  const el = document.getElementById("cartDrawerItems");
+  if (!el) return;
+  const ids = Object.keys(cart);
+  if (ids.length === 0) {
+    el.innerHTML = `<p class="cart-drawer-empty">Todavía no agregaste productos.</p>`;
+    return;
+  }
+  el.innerHTML = ids.map(id => {
+    const product = PRODUCTS.find(p => p.id === Number(id));
+    return `
+      <div class="cart-item">
+        <div class="cart-item-emoji">${product.emoji}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${product.name}</div>
+          <div class="cart-item-qty">Cantidad: ${cart[id]}</div>
+        </div>
+        <button type="button" class="cart-item-remove" onclick="removeFromCart(${id})">Quitar</button>
+      </div>
+    `;
+  }).join("");
 }
 
 function sendToWhatsApp() {
