@@ -1,12 +1,12 @@
 const WA_NUMBER = "5491127481482";
-let cart = [];
+let cart = {}; // { [id]: qty }
 
 /* ── RENDER PRODUCTO ── */
 function createProductCard(product) {
-  const inCart = cart.find(i => i.id === product.id);
   const isVianda = product.category === "viandas";
   const isPasta = product.category === "pastas";
   const isConsult = isVianda || (isPasta);
+  const qty = cart[product.id] || 0;
 
   return `
     <div class="product-card" data-category="${product.category}" data-id="${product.id}">
@@ -22,9 +22,14 @@ function createProductCard(product) {
       <div class="product-actions">
         ${isConsult
           ? `<a href="https://wa.me/${WA_NUMBER}?text=Hola%2C%20quiero%20consultar%20disponibilidad%20de%3A%20${encodeURIComponent(product.name)}" target="_blank" class="btn btn-consult">Consultar disponibilidad</a>`
-          : inCart
-            ? `<button class="btn btn-added" onclick="removeFromCart(${product.id})">✓ Agregado — quitar</button>`
-            : `<button class="btn btn-add" onclick="addToCart(${product.id})">Agregar al pedido</button>`
+          : `<div class="qty-row">
+              <div class="qty-stepper">
+                <button type="button" class="qty-btn" aria-label="Quitar uno" onclick="decrementQty(${product.id})">−</button>
+                <span class="qty-value">${qty}</span>
+                <button type="button" class="qty-btn" aria-label="Sumar uno" onclick="incrementQty(${product.id})">+</button>
+              </div>
+              <button type="button" class="btn btn-add" onclick="incrementQty(${product.id})">Agregar al pedido</button>
+            </div>`
         }
       </div>
     </div>
@@ -46,42 +51,51 @@ function renderCatalog(filter = "all") {
   el.innerHTML = filtered.map(createProductCard).join("");
 }
 
-/* ── CARRITO ── */
-function addToCart(id) {
-  const product = PRODUCTS.find(p => p.id === id);
-  if (!product || cart.find(i => i.id === id)) return;
-  cart.push(product);
-  updateCartBar();
+function renderAll() {
+  renderFeatured();
   renderCatalog(getCurrentFilter());
 }
 
-function removeFromCart(id) {
-  cart = cart.filter(i => i.id !== id);
+/* ── CARRITO ── */
+function incrementQty(id) {
+  cart[id] = (cart[id] || 0) + 1;
   updateCartBar();
-  renderCatalog(getCurrentFilter());
+  renderAll();
+}
+
+function decrementQty(id) {
+  const next = (cart[id] || 0) - 1;
+  if (next <= 0) delete cart[id]; else cart[id] = next;
+  updateCartBar();
+  renderAll();
 }
 
 function clearCart() {
-  cart = [];
+  cart = {};
   updateCartBar();
-  renderCatalog(getCurrentFilter());
+  renderAll();
 }
 
 function updateCartBar() {
   const bar = document.getElementById("cartBar");
   const count = document.getElementById("cartCount");
   if (!bar) return;
-  if (cart.length > 0) {
+  const total = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+  if (total > 0) {
     bar.classList.add("visible");
-    count.textContent = `${cart.length} producto${cart.length > 1 ? "s" : ""} seleccionado${cart.length > 1 ? "s" : ""}`;
+    count.textContent = `${total} producto${total > 1 ? "s" : ""} seleccionado${total > 1 ? "s" : ""}`;
   } else {
     bar.classList.remove("visible");
   }
 }
 
 function sendToWhatsApp() {
-  if (cart.length === 0) return;
-  const items = cart.map(p => `• ${p.name}${p.brand ? ` (${p.brand})` : ""}`).join("\n");
+  const ids = Object.keys(cart);
+  if (ids.length === 0) return;
+  const items = ids.map(id => {
+    const product = PRODUCTS.find(p => p.id === Number(id));
+    return `• ${product.name}${product.brand ? ` (${product.brand})` : ""} x${cart[id]}`;
+  }).join("\n");
   const msg = `Hola! Me gustaría hacer un pedido:\n\n${items}\n\n¿Podrían confirmar disponibilidad y precio?`;
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
 }
