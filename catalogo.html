@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script>
+    (function () {
+      var saved = localStorage.getItem("theme");
+      if (saved === "dark" || saved === "light") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo — Sión Saludable</title>
@@ -24,9 +32,15 @@
         <li><a href="contacto.html">Contacto</a></li>
         <li><a href="https://wa.me/5491127481482?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido" target="_blank" class="nav-cta">WhatsApp</a></li>
       </ul>
-      <button class="nav-toggle" aria-label="Menú" onclick="toggleMenu()">
-        <span></span><span></span><span></span>
-      </button>
+      <div class="nav-actions">
+        <button class="theme-toggle" aria-label="Cambiar tema" onclick="toggleTheme()">
+          <span class="theme-icon-sun">☀️</span>
+          <span class="theme-icon-moon">🌙</span>
+        </button>
+        <button class="nav-toggle" aria-label="Menú" onclick="toggleMenu()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
     </div>
     <div class="nav-mobile" id="navMobile">
       <a href="index.html">Inicio</a>

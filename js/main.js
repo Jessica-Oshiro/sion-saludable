@@ -164,6 +164,16 @@ function toggleMenu() {
   menu.classList.toggle("open");
 }
 
+/* ── TEMA ── */
+function toggleTheme() {
+  const current = document.documentElement.getAttribute("data-theme");
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const isDark = current ? current === "dark" : systemDark;
+  const next = isDark ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+
 /* ── INIT ── */
 document.addEventListener("DOMContentLoaded", () => {
   renderFeatured();
