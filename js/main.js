@@ -1,5 +1,20 @@
 const WA_NUMBER = "5491127481482";
-let cart = {}; // { [id]: qty }
+const CART_STORAGE_KEY = "sion_cart";
+
+function loadCart() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY));
+    return saved && typeof saved === "object" ? saved : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCart() {
+  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+}
+
+let cart = loadCart(); // { [id]: qty }
 
 /* ── RENDER PRODUCTO ── */
 function createProductCard(product) {
@@ -58,6 +73,7 @@ let cartOpen = false;
 
 function incrementQty(id) {
   cart[id] = (cart[id] || 0) + 1;
+  saveCart();
   updateCartBadge();
   renderAll();
   renderCartDrawer();
@@ -66,6 +82,7 @@ function incrementQty(id) {
 function decrementQty(id) {
   const next = (cart[id] || 0) - 1;
   if (next <= 0) delete cart[id]; else cart[id] = next;
+  saveCart();
   updateCartBadge();
   renderAll();
   renderCartDrawer();
@@ -73,6 +90,7 @@ function decrementQty(id) {
 
 function removeFromCart(id) {
   delete cart[id];
+  saveCart();
   updateCartBadge();
   renderAll();
   renderCartDrawer();
@@ -80,6 +98,7 @@ function removeFromCart(id) {
 
 function clearCart() {
   cart = {};
+  saveCart();
   updateCartBadge();
   renderAll();
   renderCartDrawer();
