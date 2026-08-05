@@ -157,6 +157,64 @@ function sendToWhatsApp() {
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 
+/* ── CONTACTO ALTERNATIVO (sin WhatsApp) ── */
+// TODO: reemplazar por el endpoint real una vez creada la cuenta gratuita en https://formspree.io
+const CONTACT_FORM_ENDPOINT = "https://formspree.io/f/TU_FORM_ID";
+
+function toggleContactForm() {
+  const form = document.getElementById("cartContactForm");
+  if (!form) return;
+  form.classList.toggle("open");
+}
+
+function buildOrderSummary() {
+  const ids = Object.keys(cart);
+  if (ids.length === 0) return "(No agregó productos, solo pidió que lo contactemos.)";
+  return ids.map(id => {
+    const product = PRODUCTS.find(p => p.id === Number(id));
+    return `- ${product.name}${product.brand ? ` (${product.brand})` : ""} x${cart[id]}`;
+  }).join("\n");
+}
+
+async function submitContactForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const status = document.getElementById("cartContactStatus");
+  const submitBtn = form.querySelector(".cart-contact-submit");
+
+  if (CONTACT_FORM_ENDPOINT.includes("TU_FORM_ID")) {
+    status.textContent = "Este formulario todavía no está configurado. Escribinos por WhatsApp mientras tanto.";
+    status.className = "cart-contact-status error";
+    return;
+  }
+
+  submitBtn.disabled = true;
+  status.textContent = "Enviando...";
+  status.className = "cart-contact-status";
+
+  try {
+    const res = await fetch(CONTACT_FORM_ENDPOINT, {
+      method: "POST",
+      headers: { "Accept": "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre: form.name.value.trim(),
+        telefono: form.phone.value.trim(),
+        email: form.email.value.trim(),
+        pedido: buildOrderSummary()
+      })
+    });
+    if (!res.ok) throw new Error("request failed");
+    status.textContent = "¡Listo! Te vamos a contactar a la brevedad.";
+    status.className = "cart-contact-status success";
+    form.reset();
+  } catch {
+    status.textContent = "No pudimos enviar tus datos. Probá de nuevo o escribinos por WhatsApp.";
+    status.className = "cart-contact-status error";
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
 function getCurrentFilter() {
   const active = document.querySelector(".filter-btn.active");
   return active ? active.dataset.filter : "all";
