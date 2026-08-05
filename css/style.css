@@ -120,6 +120,10 @@ h3 { font-size: 1.3rem; }
   :root:not([data-theme="light"]) .theme-icon-sun { display: none; }
   :root:not([data-theme="light"]) .theme-icon-moon { display: block; }
 }
+.nav-cart-btn { position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; min-width: 40px; border-radius: 50%; border: 2px solid var(--heading); background: none; cursor: pointer; color: var(--heading); font-size: 18px; line-height: 1; transition: background 0.2s, border-color 0.2s, color 0.2s; }
+.nav-cart-btn:hover { background: var(--card-tan); }
+.nav-cart-count { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 100px; background: var(--gold); color: var(--green); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.6); transition: opacity 0.15s, transform 0.15s; }
+.nav-cart-btn.has-items .nav-cart-count { opacity: 1; transform: scale(1); }
 
 /* ── HERO ── */
 .hero { position: relative; padding: 72px 0 56px; overflow: hidden; text-align: center; }
@@ -213,13 +217,6 @@ h3 { font-size: 1.3rem; }
 .filter-btn { font-family: 'DM Sans', sans-serif; padding: 12px 22px; border-radius: var(--radius-pill); border: 2px solid var(--heading); background: var(--surface); font-size: 15px; font-weight: 700; color: var(--heading); cursor: pointer; transition: all 0.2s; }
 .filter-btn:hover { background: var(--card-tan); }
 .filter-btn.active { background: var(--green); color: var(--cream); border-color: var(--green); }
-
-/* ── CARRITO BAR ── */
-.cart-bar { position: fixed; bottom: -100px; left: 0; right: 0; z-index: 200; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.cart-bar.visible { bottom: 20px; }
-.cart-bar-inner { max-width: 480px; margin: 0 auto; background: var(--green); color: var(--cream); display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 12px 12px 24px; border-radius: var(--radius-pill); box-shadow: 0 12px 30px rgba(0,0,0,0.25); border: 2px solid var(--gold); }
-.cart-count { font-size: 14px; font-weight: 700; }
-.cart-view-btn { padding: 10px 20px; font-size: 13px; }
 
 /* ── PANEL DE PEDIDO ── */
 .cart-overlay { position: fixed; inset: 0; background: rgba(43,38,32,0.45); z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
@@ -315,7 +312,6 @@ h3 { font-size: 1.3rem; }
   .contact-inner { grid-template-columns: 1fr; gap: 32px; }
   .footer { margin: 0 16px; }
   .footer-inner { grid-template-columns: 1fr; gap: 24px; }
-  .cart-bar-inner { flex-wrap: wrap; }
   .props-grid { gap: 16px; }
 }
 

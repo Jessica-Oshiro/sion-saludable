@@ -58,7 +58,7 @@ let cartOpen = false;
 
 function incrementQty(id) {
   cart[id] = (cart[id] || 0) + 1;
-  updateCartBar();
+  updateCartBadge();
   renderAll();
   renderCartDrawer();
 }
@@ -66,36 +66,32 @@ function incrementQty(id) {
 function decrementQty(id) {
   const next = (cart[id] || 0) - 1;
   if (next <= 0) delete cart[id]; else cart[id] = next;
-  updateCartBar();
+  updateCartBadge();
   renderAll();
   renderCartDrawer();
 }
 
 function removeFromCart(id) {
   delete cart[id];
-  updateCartBar();
+  updateCartBadge();
   renderAll();
   renderCartDrawer();
 }
 
 function clearCart() {
   cart = {};
-  updateCartBar();
+  updateCartBadge();
   renderAll();
   renderCartDrawer();
 }
 
-function updateCartBar() {
-  const bar = document.getElementById("cartBar");
-  const count = document.getElementById("cartCount");
-  if (!bar) return;
+function updateCartBadge() {
+  const btn = document.getElementById("navCartBtn");
+  const count = document.getElementById("navCartCount");
+  if (!btn || !count) return;
   const total = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
-  if (total > 0) {
-    bar.classList.add("visible");
-    count.textContent = `${total} producto${total > 1 ? "s" : ""} seleccionado${total > 1 ? "s" : ""}`;
-  } else {
-    bar.classList.remove("visible");
-  }
+  count.textContent = total;
+  btn.classList.toggle("has-items", total > 0);
 }
 
 function toggleCart() {
@@ -179,6 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFeatured();
   renderCatalog();
   initFilters();
+  updateCartBadge();
 
   // Scroll suave para nav
   document.querySelectorAll("a[href^='#']").forEach(a => {
