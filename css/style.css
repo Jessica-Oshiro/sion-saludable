@@ -254,7 +254,8 @@ h3 { font-size: 1.3rem; }
 /* ── CONTACTO ── */
 .contact-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 40px; }
 .contact-card { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 30px 22px; border-radius: var(--radius); }
-.contact-card-icon { font-size: 2rem; }
+.contact-card-icon { display: flex; width: 32px; height: 32px; }
+.contact-card-icon svg { width: 100%; height: 100%; }
 .contact-card h3 { font-size: 1.3rem; }
 .contact-card p { font-size: 14px; line-height: 1.5; }
 .contact-card .contact-card-link { font-weight: 700; font-size: 14px; margin-top: auto; padding-top: 8px; }
