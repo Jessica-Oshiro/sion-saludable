@@ -16,12 +16,17 @@ function saveCart() {
 
 let cart = loadCart(); // { [id]: qty }
 
+/* ── PRECIOS ── */
+function formatPrice(price) {
+  if (price === null || price === undefined) return null;
+  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(price);
+}
+
 /* ── RENDER PRODUCTO ── */
 function createProductCard(product) {
-  const isVianda = product.category === "viandas";
-  const isPasta = product.category === "pastas";
-  const isConsult = isVianda || (isPasta);
+  const isConsult = product.orderable === false;
   const qty = cart[product.id] || 0;
+  const priceLabel = formatPrice(product.price);
 
   return `
     <div class="product-card" data-category="${product.category}" data-id="${product.id}">
@@ -35,6 +40,7 @@ function createProductCard(product) {
         <p class="product-desc">${product.description}</p>
       </div>
       <div class="product-actions">
+        ${priceLabel ? `<div class="product-price">${priceLabel}</div>` : ""}
         ${isConsult
           ? `<a href="https://wa.me/${WA_NUMBER}?text=Hola%2C%20quiero%20consultar%20disponibilidad%20de%3A%20${encodeURIComponent(product.name)}" target="_blank" class="btn btn-consult">Consultar disponibilidad</a>`
           : `<div class="qty-stepper">
@@ -125,35 +131,65 @@ function toggleCart() {
 
 function renderCartDrawer() {
   const el = document.getElementById("cartDrawerItems");
+  const totalEl = document.getElementById("cartDrawerTotal");
   if (!el) return;
   const ids = Object.keys(cart);
   if (ids.length === 0) {
     el.innerHTML = `<p class="cart-drawer-empty">Todavía no agregaste productos.</p>`;
+    if (totalEl) totalEl.innerHTML = "";
     return;
   }
+
+  let total = 0;
+  let missingPrice = false;
+
   el.innerHTML = ids.map(id => {
     const product = PRODUCTS.find(p => p.id === Number(id));
+    const qty = cart[id];
+    const lineTotal = product.price != null ? product.price * qty : null;
+    if (lineTotal != null) total += lineTotal; else missingPrice = true;
     return `
       <div class="cart-item">
         <div class="cart-item-emoji">${product.emoji}</div>
         <div class="cart-item-info">
           <div class="cart-item-name">${product.name}</div>
-          <div class="cart-item-qty">Cantidad: ${cart[id]}</div>
+          <div class="cart-item-qty">Cantidad: ${qty}${lineTotal != null ? ` · ${formatPrice(lineTotal)}` : ""}</div>
         </div>
         <button type="button" class="cart-item-remove" onclick="removeFromCart(${id})">Quitar</button>
       </div>
     `;
   }).join("");
+
+  if (totalEl) {
+    totalEl.innerHTML = `
+      <div class="cart-drawer-total-row">
+        <span>Total estimado</span>
+        <strong>${formatPrice(total)}</strong>
+      </div>
+      ${missingPrice ? `<p class="cart-drawer-total-note">* Hay productos sin precio cargado, se confirma por WhatsApp.</p>` : ""}
+    `;
+  }
 }
 
 function sendToWhatsApp() {
   const ids = Object.keys(cart);
   if (ids.length === 0) return;
+
+  let total = 0;
+  let missingPrice = false;
   const items = ids.map(id => {
     const product = PRODUCTS.find(p => p.id === Number(id));
-    return `• ${product.name}${product.brand ? ` (${product.brand})` : ""} x${cart[id]}`;
+    const qty = cart[id];
+    const lineTotal = product.price != null ? product.price * qty : null;
+    if (lineTotal != null) total += lineTotal; else missingPrice = true;
+    return `• ${product.name}${product.brand ? ` (${product.brand})` : ""} x${qty}${lineTotal != null ? ` — ${formatPrice(lineTotal)}` : ""}`;
   }).join("\n");
-  const msg = `Hola! Me gustaría hacer un pedido:\n\n${items}\n\n¿Podrían confirmar disponibilidad y precio?`;
+
+  const totalLine = missingPrice
+    ? `Total estimado: ${formatPrice(total)} (hay productos sin precio confirmado)`
+    : `Total: ${formatPrice(total)}`;
+
+  const msg = `Hola! Me gustaría hacer un pedido:\n\n${items}\n\n${totalLine}\n\n¿Podrían confirmar disponibilidad?`;
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 
@@ -170,10 +206,22 @@ function toggleContactForm() {
 function buildOrderSummary() {
   const ids = Object.keys(cart);
   if (ids.length === 0) return "(No agregó productos, solo pidió que lo contactemos.)";
-  return ids.map(id => {
+
+  let total = 0;
+  let missingPrice = false;
+  const lines = ids.map(id => {
     const product = PRODUCTS.find(p => p.id === Number(id));
-    return `- ${product.name}${product.brand ? ` (${product.brand})` : ""} x${cart[id]}`;
+    const qty = cart[id];
+    const lineTotal = product.price != null ? product.price * qty : null;
+    if (lineTotal != null) total += lineTotal; else missingPrice = true;
+    return `- ${product.name}${product.brand ? ` (${product.brand})` : ""} x${qty}${lineTotal != null ? ` — ${formatPrice(lineTotal)}` : ""}`;
   }).join("\n");
+
+  const totalLine = missingPrice
+    ? `Total estimado: ${formatPrice(total)} (hay productos sin precio confirmado)`
+    : `Total: ${formatPrice(total)}`;
+
+  return `${lines}\n\n${totalLine}`;
 }
 
 async function submitContactForm(event) {
@@ -248,7 +296,14 @@ function toggleTheme() {
 }
 
 /* ── INIT ── */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  const featuredEl = document.getElementById("featuredProducts");
+  const catalogEl = document.getElementById("catalogProducts");
+  if (featuredEl) featuredEl.innerHTML = `<p class="products-loading">Cargando productos...</p>`;
+  if (catalogEl) catalogEl.innerHTML = `<p class="products-loading">Cargando productos...</p>`;
+
+  await loadProducts();
+
   renderFeatured();
   renderCatalog();
   initFilters();

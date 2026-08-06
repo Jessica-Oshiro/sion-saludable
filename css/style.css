@@ -168,6 +168,8 @@ h3 { font-size: 1.3rem; }
 .product-brand { font-size: 11px; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px; }
 .product-desc { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
 .product-actions { margin-top: auto; }
+.product-price { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--heading); margin-bottom: 8px; }
+.products-loading { grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px 0; }
 .qty-stepper { display: inline-flex; align-items: center; gap: 10px; background: var(--bg); border-radius: var(--radius-pill); padding: 6px 10px; }
 .qty-btn { width: 26px; height: 26px; min-width: 26px; padding: 0; border-radius: 50%; border: none; background: var(--green); color: var(--cream); font-weight: 700; font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .qty-btn:hover { background: var(--green-light); }
@@ -234,6 +236,9 @@ h3 { font-size: 1.3rem; }
 .cart-item-name { font-weight: 700; color: var(--heading); font-size: 15px; }
 .cart-item-qty { font-size: 13px; color: var(--text-muted); }
 .cart-item-remove { background: none; border: none; color: #c0392b; font-weight: 700; font-size: 13px; cursor: pointer; }
+.cart-drawer-total-row { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 2px solid var(--border); font-size: 15px; color: var(--text); }
+.cart-drawer-total-row strong { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; color: var(--heading); }
+.cart-drawer-total-note { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
 .cart-drawer-footer { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .cart-drawer-send { width: 100%; justify-content: center; }
 .cart-clear { background: none; border: none; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.2s; }
@@ -332,6 +337,51 @@ h3 { font-size: 1.3rem; }
   .products-grid { grid-template-columns: 1fr; }
   .filters { gap: 6px; }
   .filter-btn { font-size: 12px; padding: 8px 16px; }
+}
+
+/* ── ADMIN ── */
+.admin-header { background: var(--bg); border-bottom: 3px solid var(--heading); padding: 16px 0; }
+.admin-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.admin-header-right { display: flex; align-items: center; gap: 14px; }
+.admin-header-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.admin-logout-btn { padding: 10px 18px; font-size: 13px; }
+
+.admin-login-section { min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+.admin-login-form { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 36px; }
+.admin-login-form h1 { color: var(--heading); font-size: 1.8rem; margin-bottom: 4px; }
+.admin-login-hint { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+.admin-login-form input { width: 100%; padding: 12px 14px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; }
+.admin-login-form input:focus { outline: none; border-color: var(--heading); }
+.admin-login-form button { margin-top: 6px; }
+
+.admin-dashboard { padding: 40px 24px 80px; display: flex; flex-direction: column; gap: 40px; }
+.admin-section h2 { color: var(--heading); margin-bottom: 18px; font-size: 1.6rem; }
+.admin-section h3 { color: var(--heading); margin-bottom: 12px; }
+
+.admin-form, .admin-row { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.admin-row-fields { display: grid; grid-template-columns: 54px 1.4fr 1fr 1.2fr 100px auto auto; gap: 10px; align-items: center; margin-bottom: 10px; }
+.admin-form input[type="text"], .admin-form input[type="number"], .admin-form select,
+.admin-row input[type="text"], .admin-row input[type="number"], .admin-row select {
+  width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+}
+.admin-form input:focus, .admin-row input:focus, .admin-row select:focus, .admin-form select:focus { outline: none; border-color: var(--heading); }
+.admin-checkbox { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.admin-form textarea, .admin-row textarea { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; resize: vertical; margin-bottom: 12px; }
+.admin-form textarea:focus, .admin-row textarea:focus { outline: none; border-color: var(--heading); }
+.admin-row-actions { display: flex; align-items: center; gap: 14px; }
+.admin-delete-btn { background: none; border: none; color: #c0392b; font-weight: 700; font-size: 13px; cursor: pointer; }
+.admin-row-status { font-size: 13px; margin: 0; }
+.admin-row-status.success { color: var(--heading); }
+.admin-row-status.error { color: #c0392b; }
+
+.admin-list-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.admin-search { padding: 10px 16px; border-radius: var(--radius-pill); border: 2px solid var(--border); background: var(--surface); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; min-width: 240px; }
+.admin-search:focus { outline: none; border-color: var(--heading); }
+.admin-product-list { display: flex; flex-direction: column; gap: 14px; }
+.admin-loading { color: var(--text-muted); font-size: 14px; padding: 24px 0; }
+
+@media (max-width: 900px) {
+  .admin-row-fields { grid-template-columns: 1fr 1fr; }
 }
 
 /* ── REDUCCIÓN DE MOVIMIENTO ── */

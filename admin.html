@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script>
+    (function () {
+      var saved = localStorage.getItem("theme");
+      if (saved === "dark" || saved === "light") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Panel de administración — Sión Saludable</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="admin-header">
+    <div class="admin-header-inner container">
+      <a href="index.html" class="nav-logo">
+        <img src="assets/logo.png" alt="Sión Saludable" class="nav-logo-img">
+        <span class="nav-logo-text">Sión Saludable</span>
+      </a>
+      <div class="admin-header-right">
+        <span class="admin-header-title">Panel de administración</span>
+        <button type="button" class="theme-toggle" aria-label="Cambiar tema" onclick="toggleTheme()">
+          <span class="theme-icon-sun">☀️</span>
+          <span class="theme-icon-moon">🌙</span>
+        </button>
+        <button type="button" id="logoutBtn" class="btn btn-outline-dark admin-logout-btn" onclick="handleLogout()" style="display:none;">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- LOGIN -->
+  <section id="adminLogin" class="admin-login-section">
+    <form class="admin-login-form" onsubmit="handleLogin(event)">
+      <h1>Ingresar</h1>
+      <p class="admin-login-hint">Acceso solo para la administradora del sitio.</p>
+      <input type="email" name="email" placeholder="Email" required autocomplete="username">
+      <input type="password" name="password" placeholder="Contraseña" required autocomplete="current-password">
+      <button type="submit" class="btn btn-primary">Ingresar</button>
+      <p class="admin-row-status" id="loginError"></p>
+    </form>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="adminDashboard" class="admin-dashboard container" style="display:none;">
+
+    <div class="admin-section">
+      <h2>Agregar producto nuevo</h2>
+      <form id="addProductForm" class="admin-form" onsubmit="handleAddProduct(event)">
+        <div class="admin-row-fields">
+          <input type="text" name="emoji" value="🌿" aria-label="Emoji" maxlength="4" required>
+          <input type="text" name="name" placeholder="Nombre" required>
+          <input type="text" name="brand" placeholder="Marca">
+          <select name="category" required>
+            <option value="naturales">Productos naturales</option>
+            <option value="panificados">Panificados y dulces</option>
+            <option value="fermentados">Fermentados</option>
+            <option value="pastas">Pastas frescas</option>
+            <option value="viandas">Viandas</option>
+          </select>
+          <input type="number" name="price" placeholder="Precio ($)" min="0" step="1">
+          <label class="admin-checkbox"><input type="checkbox" name="featured"> Destacado</label>
+          <label class="admin-checkbox"><input type="checkbox" name="orderable" checked> Disponible para pedir</label>
+        </div>
+        <textarea name="description" placeholder="Descripción" rows="2" required></textarea>
+        <button type="submit" class="btn btn-primary">Crear producto</button>
+        <p class="admin-row-status" id="addProductStatus"></p>
+      </form>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-list-header">
+        <h2>Productos (<span id="adminProductCount">0</span>)</h2>
+        <input type="text" id="adminSearch" class="admin-search" placeholder="Buscar por nombre o marca...">
+      </div>
+      <div id="adminProductList" class="admin-product-list"></div>
+    </div>
+
+  </section>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
