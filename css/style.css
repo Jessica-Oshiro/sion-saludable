@@ -358,16 +358,16 @@ h3 { font-size: 1.3rem; }
 .admin-section h2 { color: var(--heading); margin-bottom: 18px; font-size: 1.6rem; }
 .admin-section h3 { color: var(--heading); margin-bottom: 12px; }
 
-.admin-form, .admin-row { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.admin-form { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 20px; }
 .admin-row-fields { display: grid; grid-template-columns: 54px 1.4fr 1fr 1.2fr 100px auto auto; gap: 10px; align-items: center; margin-bottom: 10px; }
 .admin-form input[type="text"], .admin-form input[type="number"], .admin-form select,
-.admin-row input[type="text"], .admin-row input[type="number"], .admin-row select {
+.admin-row-edit input[type="text"], .admin-row-edit input[type="number"], .admin-row-edit select {
   width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
 }
-.admin-form input:focus, .admin-row input:focus, .admin-row select:focus, .admin-form select:focus { outline: none; border-color: var(--heading); }
+.admin-form input:focus, .admin-row-edit input:focus, .admin-row-edit select:focus, .admin-form select:focus { outline: none; border-color: var(--heading); }
 .admin-checkbox { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
-.admin-form textarea, .admin-row textarea { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; resize: vertical; margin-bottom: 12px; }
-.admin-form textarea:focus, .admin-row textarea:focus { outline: none; border-color: var(--heading); }
+.admin-form textarea, .admin-row-edit textarea { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; resize: vertical; margin-bottom: 12px; }
+.admin-form textarea:focus, .admin-row-edit textarea:focus { outline: none; border-color: var(--heading); }
 .admin-row-actions { display: flex; align-items: center; gap: 14px; }
 .admin-delete-btn { background: none; border: none; color: #c0392b; font-weight: 700; font-size: 13px; cursor: pointer; }
 .admin-row-status { font-size: 13px; margin: 0; }
@@ -377,8 +377,31 @@ h3 { font-size: 1.3rem; }
 .admin-list-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
 .admin-search { padding: 10px 16px; border-radius: var(--radius-pill); border: 2px solid var(--border); background: var(--surface); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; min-width: 240px; }
 .admin-search:focus { outline: none; border-color: var(--heading); }
-.admin-product-list { display: flex; flex-direction: column; gap: 14px; }
 .admin-loading { color: var(--text-muted); font-size: 14px; padding: 24px 0; }
+
+/* Tabla de productos */
+.admin-table-wrap { overflow-x: auto; border: 2px solid var(--border); border-radius: var(--radius); }
+.admin-table { width: 100%; border-collapse: collapse; background: var(--surface); }
+.admin-table th { text-align: left; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); padding: 12px 14px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+.admin-row-summary td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text); white-space: nowrap; }
+.admin-row-summary:hover { background: var(--bg); }
+.admin-cell-emoji { font-size: 1.2rem; }
+.admin-cell-name { font-weight: 700; color: var(--heading); white-space: normal !important; min-width: 160px; }
+.admin-cell-check { text-align: center; color: var(--heading); font-weight: 700; }
+.admin-edit-toggle { background: none; border: 2px solid var(--heading); color: var(--heading); border-radius: var(--radius-pill); padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.admin-edit-toggle:hover { background: var(--card-tan); }
+.admin-row-edit td { background: var(--bg); padding: 18px; border-bottom: 1px solid var(--border); }
+
+/* Métricas */
+.admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.admin-stat-card { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 4px; }
+.admin-stat-value { font-family: 'Barlow Condensed', sans-serif; font-size: 2.4rem; font-weight: 800; color: var(--heading); line-height: 1; }
+.admin-stat-label { font-size: 13px; color: var(--text-muted); font-weight: 700; }
+.admin-stat-sub { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+.admin-top-products-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.admin-top-products-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 10px 16px; font-size: 14px; }
+.admin-top-name { color: var(--text); font-weight: 700; }
+.admin-top-count { color: var(--heading); font-weight: 800; font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; }
 
 @media (max-width: 900px) {
   .admin-row-fields { grid-template-columns: 1fr 1fr; }

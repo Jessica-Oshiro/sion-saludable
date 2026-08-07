@@ -53,6 +53,17 @@
   <section id="adminDashboard" class="admin-dashboard container" style="display:none;">
 
     <div class="admin-section">
+      <h2>Métricas</h2>
+      <div class="admin-stats-grid" id="adminStats">
+        <p class="admin-loading">Cargando métricas...</p>
+      </div>
+      <div class="admin-top-products">
+        <h3>Productos más agregados al carrito</h3>
+        <ol id="adminTopProducts" class="admin-top-products-list"></ol>
+      </div>
+    </div>
+
+    <div class="admin-section">
       <h2>Agregar producto nuevo</h2>
       <form id="addProductForm" class="admin-form" onsubmit="handleAddProduct(event)">
         <div class="admin-row-fields">
@@ -81,7 +92,22 @@
         <h2>Productos (<span id="adminProductCount">0</span>)</h2>
         <input type="text" id="adminSearch" class="admin-search" placeholder="Buscar por nombre o marca...">
       </div>
-      <div id="adminProductList" class="admin-product-list"></div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Destacado</th>
+              <th>Disponible</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="adminProductList"></tbody>
+        </table>
+      </div>
     </div>
 
   </section>

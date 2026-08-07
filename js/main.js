@@ -16,6 +16,25 @@ function saveCart() {
 
 let cart = loadCart(); // { [id]: qty }
 
+/* ── MÉTRICAS ── */
+function getPageName() {
+  const path = location.pathname.split("/").pop();
+  if (!path || path === "index.html") return "inicio";
+  if (path === "catalogo.html") return "catalogo";
+  if (path === "contacto.html") return "contacto";
+  return path;
+}
+
+async function logEvent(type, extra = {}) {
+  try {
+    const { data } = await sb.auth.getSession();
+    if (data.session) return; // no contar la navegación de la propia admin logueada
+    await sb.from("events").insert({ type, ...extra });
+  } catch {
+    // los eventos son best-effort: nunca deben romper la experiencia del sitio
+  }
+}
+
 /* ── PRECIOS ── */
 function formatPrice(price) {
   if (price === null || price === undefined) return null;
@@ -83,6 +102,8 @@ function incrementQty(id) {
   updateCartBadge();
   renderAll();
   renderCartDrawer();
+  const product = PRODUCTS.find(p => p.id === id);
+  logEvent("add_to_cart", { product_id: id, product_name: product ? product.name : null });
 }
 
 function decrementQty(id) {
@@ -191,6 +212,7 @@ function sendToWhatsApp() {
 
   const msg = `Hola! Me gustaría hacer un pedido:\n\n${items}\n\n${totalLine}\n\n¿Podrían confirmar disponibilidad?`;
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+  logEvent("whatsapp_order", {});
 }
 
 /* ── CONTACTO ALTERNATIVO (sin WhatsApp) ── */
@@ -255,6 +277,7 @@ async function submitContactForm(event) {
     status.textContent = "¡Listo! Te vamos a contactar a la brevedad.";
     status.className = "cart-contact-status success";
     form.reset();
+    logEvent("contact_form", {});
   } catch {
     status.textContent = "No pudimos enviar tus datos. Probá de nuevo o escribinos por WhatsApp.";
     status.className = "cart-contact-status error";
@@ -308,6 +331,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderCatalog();
   initFilters();
   updateCartBadge();
+  logEvent("page_view", { page: getPageName() });
 
   // Scroll suave para nav
   document.querySelectorAll("a[href^='#']").forEach(a => {
