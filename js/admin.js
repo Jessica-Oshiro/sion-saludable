@@ -8,6 +8,15 @@ const CATEGORY_LABELS = {
 
 let adminProducts = [];
 
+// Respaldo local (usado solo si la tabla price_settings todavía no existe en Supabase):
+// mismos valores recomendados que la seed del SQL, para que el cálculo funcione igual.
+const DEFAULT_PRICE_SETTINGS = {
+  default_markup_pct: 40,
+  category_markup: { naturales: 40, panificados: 120, fermentados: 120, pastas: 120, viandas: 120 },
+  round_to: 100
+};
+let priceSettings = { ...DEFAULT_PRICE_SETTINGS };
+
 /* ── TEMA (compartido con el sitio público) ── */
 function toggleTheme() {
   const current = document.documentElement.getAttribute("data-theme");
@@ -76,12 +85,131 @@ async function handleLogout() {
 sb.auth.onAuthStateChange((event, session) => {
   if (session) {
     showLoggedIn();
+    loadPriceSettings().then(() => renderCategoryMarkupInputs());
     loadAdminProducts();
     loadMetrics();
   } else {
     showLoggedOut();
   }
 });
+
+/* ── PRECIOS: CÁLCULO ── */
+async function loadPriceSettings() {
+  const { data, error } = await sb.from("price_settings").select("*").eq("id", 1).single();
+  priceSettings = (error || !data) ? { ...DEFAULT_PRICE_SETTINGS } : data;
+  const form = document.getElementById("pricingSettingsForm");
+  if (form) {
+    form.default_markup_pct.value = priceSettings.default_markup_pct;
+    form.round_to.value = priceSettings.round_to;
+  }
+}
+
+function getMarkupForCategory(category) {
+  const override = priceSettings.category_markup?.[category];
+  return override != null ? Number(override) : Number(priceSettings.default_markup_pct);
+}
+
+function calculateSuggestedPrice(cost, category) {
+  if (cost === null || cost === undefined || cost === "") return null;
+  const costNum = Number(cost);
+  if (Number.isNaN(costNum)) return null;
+  const markupPct = getMarkupForCategory(category);
+  const raw = costNum * (1 + markupPct / 100);
+  const step = Number(priceSettings.round_to) || 1;
+  return Math.round(raw / step) * step;
+}
+
+function recalcAddFormPrice() {
+  const form = document.getElementById("addProductForm");
+  const suggested = calculateSuggestedPrice(form.cost.value, form.category.value);
+  if (suggested !== null) form.price.value = suggested;
+}
+
+function handleCostInput(id) {
+  const editRow = document.getElementById(`admin-edit-${id}`);
+  if (!editRow) return;
+  const cost = editRow.querySelector(".admin-cost").value;
+  const category = editRow.querySelector(".admin-category").value;
+  const suggested = calculateSuggestedPrice(cost, category);
+  if (suggested !== null) editRow.querySelector(".admin-price").value = suggested;
+}
+
+function renderCategoryMarkupInputs() {
+  const el = document.getElementById("categoryMarkupInputs");
+  if (!el) return;
+  el.innerHTML = Object.entries(CATEGORY_LABELS).map(([key, label]) => `
+    <label>${label} (%)
+      <input type="number" class="category-markup-input" data-category="${key}" min="0" step="1" value="${priceSettings.category_markup?.[key] ?? ""}" placeholder="Usa ${priceSettings.default_markup_pct}% por defecto">
+    </label>
+  `).join("");
+}
+
+async function savePriceSettings(event) {
+  event.preventDefault();
+  const form = event.target;
+  const statusEl = document.getElementById("pricingStatus");
+
+  const categoryMarkup = {};
+  document.querySelectorAll(".category-markup-input").forEach(input => {
+    if (input.value !== "") categoryMarkup[input.dataset.category] = Number(input.value);
+  });
+
+  const payload = {
+    default_markup_pct: Number(form.default_markup_pct.value),
+    round_to: Number(form.round_to.value),
+    category_markup: categoryMarkup
+  };
+
+  statusEl.textContent = "Guardando...";
+  statusEl.className = "admin-row-status";
+
+  const { data, error } = await sb.from("price_settings").update(payload).eq("id", 1).select();
+
+  if (error) {
+    statusEl.textContent = "Error al guardar (¿falta crear la tabla \"price_settings\"?)";
+    statusEl.className = "admin-row-status error";
+    return;
+  }
+  if (!data || data.length === 0) {
+    statusEl.textContent = "No se guardó: tu sesión puede haber expirado. Volvé a ingresar.";
+    statusEl.className = "admin-row-status error";
+    return;
+  }
+
+  priceSettings = data[0];
+  renderCategoryMarkupInputs();
+  statusEl.textContent = "Configuración guardada ✓";
+  statusEl.className = "admin-row-status success";
+  setTimeout(() => { statusEl.textContent = ""; }, 2000);
+}
+
+async function recalculateAllPrices() {
+  const statusEl = document.getElementById("recalculateStatus");
+  const withCost = adminProducts.filter(p => p.cost_price != null);
+
+  if (withCost.length === 0) {
+    statusEl.textContent = "Ningún producto tiene costo cargado todavía.";
+    statusEl.className = "admin-row-status error";
+    return;
+  }
+  if (!confirm(`Se va a recalcular el precio de ${withCost.length} producto(s) con la configuración actual. ¿Continuar?`)) return;
+
+  statusEl.textContent = "Recalculando...";
+  statusEl.className = "admin-row-status";
+
+  let successCount = 0;
+  for (const p of withCost) {
+    const newPrice = calculateSuggestedPrice(p.cost_price, p.category);
+    const { data, error } = await sb.from("products").update({ price: newPrice }).eq("id", p.id).select();
+    if (!error && data && data.length > 0) successCount++;
+  }
+
+  await loadAdminProducts();
+  statusEl.textContent = successCount === withCost.length
+    ? `Listo: se actualizaron ${successCount} producto(s).`
+    : `Se actualizaron ${successCount} de ${withCost.length} producto(s). Revisá tu sesión si alguno falló.`;
+  statusEl.className = successCount === withCost.length ? "admin-row-status success" : "admin-row-status error";
+}
 
 /* ── MÉTRICAS ── */
 async function loadMetrics() {
@@ -198,7 +326,8 @@ function adminRowTemplate(p) {
           <input type="text" class="admin-emoji" value="${escapeHtml(p.emoji)}" maxlength="4" aria-label="Emoji">
           <input type="text" class="admin-name" value="${escapeHtml(p.name)}" placeholder="Nombre" aria-label="Nombre">
           <input type="text" class="admin-brand" value="${escapeHtml(p.brand || "")}" placeholder="Marca" aria-label="Marca">
-          <select class="admin-category" aria-label="Categoría">${categoryOptions}</select>
+          <select class="admin-category" aria-label="Categoría" onchange="handleCostInput(${p.id})">${categoryOptions}</select>
+          <input type="number" class="admin-cost" value="${p.cost_price ?? ""}" placeholder="Costo ($)" min="0" step="1" aria-label="Costo" oninput="handleCostInput(${p.id})">
           <input type="number" class="admin-price" value="${p.price ?? ""}" placeholder="Precio ($)" min="0" step="1" aria-label="Precio">
           <label class="admin-checkbox"><input type="checkbox" class="admin-featured" ${p.featured ? "checked" : ""}> Destacado</label>
           <label class="admin-checkbox"><input type="checkbox" class="admin-orderable" ${p.orderable ? "checked" : ""}> Disponible para pedir</label>
@@ -226,12 +355,14 @@ async function saveProduct(id, btn) {
   const editRow = document.getElementById(`admin-edit-${id}`);
   const statusEl = editRow.querySelector(".admin-row-status");
   const priceVal = editRow.querySelector(".admin-price").value;
+  const costVal = editRow.querySelector(".admin-cost").value;
 
   const payload = {
     emoji: editRow.querySelector(".admin-emoji").value.trim(),
     name: editRow.querySelector(".admin-name").value.trim(),
     brand: editRow.querySelector(".admin-brand").value.trim() || null,
     category: editRow.querySelector(".admin-category").value,
+    cost_price: costVal === "" ? null : Number(costVal),
     price: priceVal === "" ? null : Number(priceVal),
     featured: editRow.querySelector(".admin-featured").checked,
     orderable: editRow.querySelector(".admin-orderable").checked,
@@ -305,6 +436,7 @@ async function handleAddProduct(event) {
     name: form.name.value.trim(),
     brand: form.brand.value.trim() || null,
     category: form.category.value,
+    cost_price: form.cost.value === "" ? null : Number(form.cost.value),
     price: form.price.value === "" ? null : Number(form.price.value),
     featured: form.featured.checked,
     orderable: form.orderable.checked,
@@ -349,6 +481,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const { data } = await sb.auth.getSession();
   if (data.session) {
     showLoggedIn();
+    await loadPriceSettings();
+    renderCategoryMarkupInputs();
     loadAdminProducts();
     loadMetrics();
   } else {

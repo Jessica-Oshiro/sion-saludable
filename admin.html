@@ -62,6 +62,9 @@
       <button type="button" class="admin-nav-item" data-section="products" onclick="showAdminSection('products', this)">
         <span class="admin-nav-icon">📦</span> Productos
       </button>
+      <button type="button" class="admin-nav-item" data-section="pricing" onclick="showAdminSection('pricing', this)">
+        <span class="admin-nav-icon">💲</span> Precios
+      </button>
     </nav>
 
     <main class="admin-main">
@@ -84,17 +87,19 @@
             <input type="text" name="emoji" value="🌿" aria-label="Emoji" maxlength="4" required>
             <input type="text" name="name" placeholder="Nombre" required>
             <input type="text" name="brand" placeholder="Marca">
-            <select name="category" required>
+            <select name="category" required onchange="recalcAddFormPrice()">
               <option value="naturales">Productos naturales</option>
               <option value="panificados">Panificados y dulces</option>
               <option value="fermentados">Fermentados</option>
               <option value="pastas">Pastas frescas</option>
               <option value="viandas">Viandas</option>
             </select>
+            <input type="number" name="cost" placeholder="Costo ($)" min="0" step="1" oninput="recalcAddFormPrice()">
             <input type="number" name="price" placeholder="Precio ($)" min="0" step="1">
             <label class="admin-checkbox"><input type="checkbox" name="featured"> Destacado</label>
             <label class="admin-checkbox"><input type="checkbox" name="orderable" checked> Disponible para pedir</label>
           </div>
+          <p class="admin-pricing-hint">Si cargás el costo, el precio se calcula solo con el margen configurado (lo podés editar igual).</p>
           <textarea name="description" placeholder="Descripción" rows="2" required></textarea>
           <button type="submit" class="btn btn-primary">Crear producto</button>
           <p class="admin-row-status" id="addProductStatus"></p>
@@ -121,6 +126,35 @@
             </thead>
             <tbody id="adminProductList"></tbody>
           </table>
+        </div>
+      </div>
+
+      <div class="admin-section" data-section="pricing" style="display:none;">
+        <h2>Configuración de precios</h2>
+        <p class="admin-pricing-hint">Definí el margen que se aplica sobre el costo del proveedor (o costo estimado de ingredientes) para sugerir el precio de venta. Podés dejar un margen distinto por categoría; si una categoría queda vacía, usa el margen por defecto.</p>
+
+        <form id="pricingSettingsForm" class="admin-form" onsubmit="savePriceSettings(event)">
+          <div class="admin-pricing-grid">
+            <label>Margen por defecto (%)
+              <input type="number" name="default_markup_pct" min="0" step="1" required>
+            </label>
+            <label>Redondear al múltiplo de $
+              <input type="number" name="round_to" min="1" step="1" required>
+            </label>
+          </div>
+
+          <h3>Margen por categoría</h3>
+          <div class="admin-pricing-grid" id="categoryMarkupInputs"></div>
+
+          <button type="submit" class="btn btn-primary">Guardar configuración</button>
+          <p class="admin-row-status" id="pricingStatus"></p>
+        </form>
+
+        <div class="admin-pricing-bulk">
+          <h3>Recalcular precios existentes</h3>
+          <p class="admin-pricing-hint">Vuelve a calcular el precio de venta de todos los productos que ya tienen un costo cargado, usando la configuración de arriba. Útil cuando cambia un precio de proveedor o ajustás el margen.</p>
+          <button type="button" class="btn btn-outline-dark" onclick="recalculateAllPrices()">Recalcular todos los precios</button>
+          <p class="admin-row-status" id="recalculateStatus"></p>
         </div>
       </div>
 
