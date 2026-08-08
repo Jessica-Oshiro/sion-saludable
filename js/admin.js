@@ -39,8 +39,17 @@ function showLoggedOut() {
 
 function showLoggedIn() {
   document.getElementById("adminLogin").style.display = "none";
-  document.getElementById("adminDashboard").style.display = "block";
+  document.getElementById("adminDashboard").style.display = "flex";
   document.getElementById("logoutBtn").style.display = "inline-flex";
+}
+
+/* ── NAVEGACIÓN ENTRE SECCIONES ── */
+function showAdminSection(name, btn) {
+  document.querySelectorAll(".admin-section").forEach(section => {
+    section.style.display = section.dataset.section === name ? "block" : "none";
+  });
+  document.querySelectorAll(".admin-nav-item").forEach(item => item.classList.remove("active"));
+  if (btn) btn.classList.add("active");
 }
 
 async function handleLogin(event) {

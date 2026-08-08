@@ -50,67 +50,82 @@
   </section>
 
   <!-- DASHBOARD -->
-  <section id="adminDashboard" class="admin-dashboard container" style="display:none;">
+  <div id="adminDashboard" class="admin-layout" style="display:none;">
 
-    <div class="admin-section">
-      <h2>Métricas</h2>
-      <div class="admin-stats-grid" id="adminStats">
-        <p class="admin-loading">Cargando métricas...</p>
-      </div>
-      <div class="admin-top-products">
-        <h3>Productos más agregados al carrito</h3>
-        <ol id="adminTopProducts" class="admin-top-products-list"></ol>
-      </div>
-    </div>
+    <nav class="admin-sidebar">
+      <button type="button" class="admin-nav-item active" data-section="metrics" onclick="showAdminSection('metrics', this)">
+        <span class="admin-nav-icon">📊</span> Métricas
+      </button>
+      <button type="button" class="admin-nav-item" data-section="add" onclick="showAdminSection('add', this)">
+        <span class="admin-nav-icon">➕</span> Agregar producto
+      </button>
+      <button type="button" class="admin-nav-item" data-section="products" onclick="showAdminSection('products', this)">
+        <span class="admin-nav-icon">📦</span> Productos
+      </button>
+    </nav>
 
-    <div class="admin-section">
-      <h2>Agregar producto nuevo</h2>
-      <form id="addProductForm" class="admin-form" onsubmit="handleAddProduct(event)">
-        <div class="admin-row-fields">
-          <input type="text" name="emoji" value="🌿" aria-label="Emoji" maxlength="4" required>
-          <input type="text" name="name" placeholder="Nombre" required>
-          <input type="text" name="brand" placeholder="Marca">
-          <select name="category" required>
-            <option value="naturales">Productos naturales</option>
-            <option value="panificados">Panificados y dulces</option>
-            <option value="fermentados">Fermentados</option>
-            <option value="pastas">Pastas frescas</option>
-            <option value="viandas">Viandas</option>
-          </select>
-          <input type="number" name="price" placeholder="Precio ($)" min="0" step="1">
-          <label class="admin-checkbox"><input type="checkbox" name="featured"> Destacado</label>
-          <label class="admin-checkbox"><input type="checkbox" name="orderable" checked> Disponible para pedir</label>
+    <main class="admin-main">
+
+      <div class="admin-section" data-section="metrics">
+        <h2>Métricas</h2>
+        <div class="admin-stats-grid" id="adminStats">
+          <p class="admin-loading">Cargando métricas...</p>
         </div>
-        <textarea name="description" placeholder="Descripción" rows="2" required></textarea>
-        <button type="submit" class="btn btn-primary">Crear producto</button>
-        <p class="admin-row-status" id="addProductStatus"></p>
-      </form>
-    </div>
-
-    <div class="admin-section">
-      <div class="admin-list-header">
-        <h2>Productos (<span id="adminProductCount">0</span>)</h2>
-        <input type="text" id="adminSearch" class="admin-search" placeholder="Buscar por nombre o marca...">
+        <div class="admin-top-products">
+          <h3>Productos más agregados al carrito</h3>
+          <ol id="adminTopProducts" class="admin-top-products-list"></ol>
+        </div>
       </div>
-      <div class="admin-table-wrap">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Nombre</th>
-              <th>Categoría</th>
-              <th>Precio</th>
-              <th>Destacado</th>
-              <th>Disponible</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="adminProductList"></tbody>
-        </table>
-      </div>
-    </div>
 
-  </section>
+      <div class="admin-section" data-section="add" style="display:none;">
+        <h2>Agregar producto nuevo</h2>
+        <form id="addProductForm" class="admin-form" onsubmit="handleAddProduct(event)">
+          <div class="admin-row-fields">
+            <input type="text" name="emoji" value="🌿" aria-label="Emoji" maxlength="4" required>
+            <input type="text" name="name" placeholder="Nombre" required>
+            <input type="text" name="brand" placeholder="Marca">
+            <select name="category" required>
+              <option value="naturales">Productos naturales</option>
+              <option value="panificados">Panificados y dulces</option>
+              <option value="fermentados">Fermentados</option>
+              <option value="pastas">Pastas frescas</option>
+              <option value="viandas">Viandas</option>
+            </select>
+            <input type="number" name="price" placeholder="Precio ($)" min="0" step="1">
+            <label class="admin-checkbox"><input type="checkbox" name="featured"> Destacado</label>
+            <label class="admin-checkbox"><input type="checkbox" name="orderable" checked> Disponible para pedir</label>
+          </div>
+          <textarea name="description" placeholder="Descripción" rows="2" required></textarea>
+          <button type="submit" class="btn btn-primary">Crear producto</button>
+          <p class="admin-row-status" id="addProductStatus"></p>
+        </form>
+      </div>
+
+      <div class="admin-section" data-section="products" style="display:none;">
+        <div class="admin-list-header">
+          <h2>Productos (<span id="adminProductCount">0</span>)</h2>
+          <input type="text" id="adminSearch" class="admin-search" placeholder="Buscar por nombre o marca...">
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Destacado</th>
+                <th>Disponible</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="adminProductList"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="js/supabase-client.js"></script>
