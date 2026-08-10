@@ -65,6 +65,9 @@
       <button type="button" class="admin-nav-item" data-section="pricing" onclick="showAdminSection('pricing', this)">
         <span class="admin-nav-icon">💲</span> Precios
       </button>
+      <button type="button" class="admin-nav-item" data-section="shipping" onclick="showAdminSection('shipping', this)">
+        <span class="admin-nav-icon">🚚</span> Envíos
+      </button>
     </nav>
 
     <main class="admin-main">
@@ -155,6 +158,33 @@
           <p class="admin-pricing-hint">Vuelve a calcular el precio de venta de todos los productos que ya tienen un costo cargado, usando la configuración de arriba. Útil cuando cambia un precio de proveedor o ajustás el margen.</p>
           <button type="button" class="btn btn-outline-dark" onclick="recalculateAllPrices()">Recalcular todos los precios</button>
           <p class="admin-row-status" id="recalculateStatus"></p>
+        </div>
+      </div>
+
+      <div class="admin-section" data-section="shipping" style="display:none;">
+        <h2>Zonas de envío</h2>
+        <p class="admin-pricing-hint">Definí el costo de envío para cada barrio o zona que cubrís. Se muestra en el carrito del sitio para que la clienta elija su zona y vea el envío sumado al total antes de enviar el pedido.</p>
+
+        <form id="addZoneForm" class="admin-form" onsubmit="handleAddShippingZone(event)">
+          <div class="admin-zone-fields">
+            <input type="text" name="name" placeholder="Barrio o zona" required>
+            <input type="number" name="cost" placeholder="Costo ($)" min="0" step="1" required>
+            <button type="submit" class="btn btn-primary">Agregar zona</button>
+          </div>
+          <p class="admin-row-status" id="addZoneStatus"></p>
+        </form>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Barrio / zona</th>
+                <th>Costo</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="shippingZonesList"></tbody>
+          </table>
         </div>
       </div>
 

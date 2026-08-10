@@ -16,6 +16,52 @@ function saveCart() {
 
 let cart = loadCart(); // { [id]: qty }
 
+/* ── ENVÍO ── */
+const SHIPPING_STORAGE_KEY = "sion_shipping_zone";
+let shippingZones = [];
+let selectedShippingZoneId = localStorage.getItem(SHIPPING_STORAGE_KEY) || "";
+
+async function loadShippingZones() {
+  const { data, error } = await sb.from("shipping_zones").select("*").order("name", { ascending: true });
+  if (error) {
+    shippingZones = [];
+    return;
+  }
+  shippingZones = data;
+}
+
+function getSelectedShippingZone() {
+  return shippingZones.find(z => String(z.id) === String(selectedShippingZoneId)) || null;
+}
+
+function getSelectedShippingCost() {
+  const zone = getSelectedShippingZone();
+  return zone ? Number(zone.cost) : 0;
+}
+
+function renderShippingSelect() {
+  const wrap = document.getElementById("cartShipping");
+  const select = document.getElementById("shippingZoneSelect");
+  if (!wrap || !select) return;
+
+  if (shippingZones.length === 0) {
+    wrap.style.display = "none";
+    return;
+  }
+
+  select.innerHTML = `<option value="">Elegí tu barrio...</option>` + shippingZones.map(z =>
+    `<option value="${z.id}" ${String(z.id) === String(selectedShippingZoneId) ? "selected" : ""}>${z.name} — ${formatPrice(z.cost)}</option>`
+  ).join("");
+}
+
+function updateShippingSelection() {
+  const select = document.getElementById("shippingZoneSelect");
+  if (!select) return;
+  selectedShippingZoneId = select.value || "";
+  localStorage.setItem(SHIPPING_STORAGE_KEY, selectedShippingZoneId);
+  renderCartDrawer();
+}
+
 /* ── MÉTRICAS ── */
 function getPageName() {
   const path = location.pathname.split("/").pop();
@@ -153,13 +199,18 @@ function toggleCart() {
 function renderCartDrawer() {
   const el = document.getElementById("cartDrawerItems");
   const totalEl = document.getElementById("cartDrawerTotal");
+  const shippingWrap = document.getElementById("cartShipping");
   if (!el) return;
   const ids = Object.keys(cart);
+
   if (ids.length === 0) {
     el.innerHTML = `<p class="cart-drawer-empty">Todavía no agregaste productos.</p>`;
     if (totalEl) totalEl.innerHTML = "";
+    if (shippingWrap) shippingWrap.style.display = "none";
     return;
   }
+
+  if (shippingWrap) shippingWrap.style.display = shippingZones.length > 0 ? "flex" : "none";
 
   let total = 0;
   let missingPrice = false;
@@ -181,11 +232,21 @@ function renderCartDrawer() {
     `;
   }).join("");
 
+  const shippingZone = getSelectedShippingZone();
+  const shippingCost = getSelectedShippingCost();
+  const grandTotal = total + shippingCost;
+
   if (totalEl) {
     totalEl.innerHTML = `
+      ${shippingZone ? `
+        <div class="cart-drawer-total-row">
+          <span>Envío a ${shippingZone.name}</span>
+          <span>${formatPrice(shippingCost)}</span>
+        </div>
+      ` : ""}
       <div class="cart-drawer-total-row">
         <span>Total estimado</span>
-        <strong>${formatPrice(total)}</strong>
+        <strong>${formatPrice(grandTotal)}</strong>
       </div>
       ${missingPrice ? `<p class="cart-drawer-total-note">* Hay productos sin precio cargado, se confirma por WhatsApp.</p>` : ""}
     `;
@@ -206,9 +267,14 @@ function sendToWhatsApp() {
     return `• ${product.name}${product.brand ? ` (${product.brand})` : ""} x${qty}${lineTotal != null ? ` — ${formatPrice(lineTotal)}` : ""}`;
   }).join("\n");
 
+  const shippingZone = getSelectedShippingZone();
+  const shippingCost = getSelectedShippingCost();
+  const grandTotal = total + shippingCost;
+  const shippingLine = shippingZone ? `Envío a ${shippingZone.name}: ${formatPrice(shippingCost)}\n` : "";
+
   const totalLine = missingPrice
-    ? `Total estimado: ${formatPrice(total)} (hay productos sin precio confirmado)`
-    : `Total: ${formatPrice(total)}`;
+    ? `${shippingLine}Total estimado: ${formatPrice(grandTotal)} (hay productos sin precio confirmado)`
+    : `${shippingLine}Total: ${formatPrice(grandTotal)}`;
 
   const msg = `Hola! Me gustaría hacer un pedido:\n\n${items}\n\n${totalLine}\n\n¿Podrían confirmar disponibilidad?`;
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
@@ -239,9 +305,14 @@ function buildOrderSummary() {
     return `- ${product.name}${product.brand ? ` (${product.brand})` : ""} x${qty}${lineTotal != null ? ` — ${formatPrice(lineTotal)}` : ""}`;
   }).join("\n");
 
+  const shippingZone = getSelectedShippingZone();
+  const shippingCost = getSelectedShippingCost();
+  const grandTotal = total + shippingCost;
+  const shippingLine = shippingZone ? `Envío a ${shippingZone.name}: ${formatPrice(shippingCost)}\n` : "";
+
   const totalLine = missingPrice
-    ? `Total estimado: ${formatPrice(total)} (hay productos sin precio confirmado)`
-    : `Total: ${formatPrice(total)}`;
+    ? `${shippingLine}Total estimado: ${formatPrice(grandTotal)} (hay productos sin precio confirmado)`
+    : `${shippingLine}Total: ${formatPrice(grandTotal)}`;
 
   return `${lines}\n\n${totalLine}`;
 }
@@ -332,6 +403,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   initFilters();
   updateCartBadge();
   logEvent("page_view", { page: getPageName() });
+
+  loadShippingZones().then(renderShippingSelect);
 
   // Scroll suave para nav
   document.querySelectorAll("a[href^='#']").forEach(a => {

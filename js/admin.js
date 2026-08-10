@@ -7,6 +7,7 @@ const CATEGORY_LABELS = {
 };
 
 let adminProducts = [];
+let shippingZones = [];
 
 // Respaldo local (usado solo si la tabla price_settings todavía no existe en Supabase):
 // mismos valores recomendados que la seed del SQL, para que el cálculo funcione igual.
@@ -88,6 +89,7 @@ sb.auth.onAuthStateChange((event, session) => {
     loadPriceSettings().then(() => renderCategoryMarkupInputs());
     loadAdminProducts();
     loadMetrics();
+    loadShippingZones();
   } else {
     showLoggedOut();
   }
@@ -209,6 +211,110 @@ async function recalculateAllPrices() {
     ? `Listo: se actualizaron ${successCount} producto(s).`
     : `Se actualizaron ${successCount} de ${withCost.length} producto(s). Revisá tu sesión si alguno falló.`;
   statusEl.className = successCount === withCost.length ? "admin-row-status success" : "admin-row-status error";
+}
+
+/* ── ZONAS DE ENVÍO ── */
+async function loadShippingZones() {
+  const listEl = document.getElementById("shippingZonesList");
+  if (!listEl) return;
+  listEl.innerHTML = `<tr><td colspan="3" class="admin-loading">Cargando zonas...</td></tr>`;
+
+  const { data, error } = await sb.from("shipping_zones").select("*").order("name", { ascending: true });
+
+  if (error) {
+    listEl.innerHTML = `<tr><td colspan="3" class="admin-row-status error">Todavía no hay zonas (¿falta crear la tabla "shipping_zones"?).</td></tr>`;
+    return;
+  }
+  shippingZones = data;
+  renderShippingZones();
+}
+
+function renderShippingZones() {
+  const listEl = document.getElementById("shippingZonesList");
+  if (!listEl) return;
+
+  if (shippingZones.length === 0) {
+    listEl.innerHTML = `<tr><td colspan="3" class="admin-loading">Todavía no agregaste zonas de envío.</td></tr>`;
+    return;
+  }
+  listEl.innerHTML = shippingZones.map(z => `
+    <tr data-id="${z.id}">
+      <td><input type="text" class="zone-name" value="${escapeHtml(z.name)}" aria-label="Barrio o zona"></td>
+      <td><input type="number" class="zone-cost" value="${z.cost}" min="0" step="1" aria-label="Costo"></td>
+      <td class="admin-row-actions">
+        <button type="button" class="btn btn-primary admin-save-btn" onclick="saveShippingZone(${z.id}, this)">Guardar</button>
+        <button type="button" class="admin-delete-btn" onclick="deleteShippingZone(${z.id})">Eliminar</button>
+        <span class="admin-row-status"></span>
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function saveShippingZone(id, btn) {
+  const row = btn.closest("tr");
+  const statusEl = row.querySelector(".admin-row-status");
+  const payload = {
+    name: row.querySelector(".zone-name").value.trim(),
+    cost: Number(row.querySelector(".zone-cost").value)
+  };
+
+  btn.disabled = true;
+  statusEl.textContent = "Guardando...";
+  statusEl.className = "admin-row-status";
+
+  const { data, error } = await sb.from("shipping_zones").update(payload).eq("id", id).select();
+  btn.disabled = false;
+
+  if (error || !data || data.length === 0) {
+    statusEl.textContent = error ? "Error al guardar" : "No se guardó: tu sesión puede haber expirado.";
+    statusEl.className = "admin-row-status error";
+    return;
+  }
+  statusEl.textContent = "Guardado ✓";
+  statusEl.className = "admin-row-status success";
+
+  const idx = shippingZones.findIndex(z => z.id === id);
+  if (idx !== -1) shippingZones[idx] = { ...shippingZones[idx], ...payload };
+  setTimeout(() => { statusEl.textContent = ""; }, 2000);
+}
+
+async function deleteShippingZone(id) {
+  if (!confirm("¿Eliminar esta zona de envío? No se puede deshacer.")) return;
+
+  const { data, error } = await sb.from("shipping_zones").delete().eq("id", id).select();
+  if (error || !data || data.length === 0) {
+    alert(error ? "Error al eliminar: " + error.message : "No se eliminó: tu sesión puede haber expirado.");
+    return;
+  }
+  shippingZones = shippingZones.filter(z => z.id !== id);
+  renderShippingZones();
+}
+
+async function handleAddShippingZone(event) {
+  event.preventDefault();
+  const form = event.target;
+  const statusEl = document.getElementById("addZoneStatus");
+
+  const payload = {
+    name: form.name.value.trim(),
+    cost: Number(form.cost.value)
+  };
+
+  statusEl.textContent = "Agregando...";
+  statusEl.className = "admin-row-status";
+
+  const { error } = await sb.from("shipping_zones").insert(payload);
+
+  if (error) {
+    statusEl.textContent = "Error: " + error.message;
+    statusEl.className = "admin-row-status error";
+    return;
+  }
+  statusEl.textContent = "¡Zona agregada!";
+  statusEl.className = "admin-row-status success";
+  form.reset();
+  await loadShippingZones();
+  setTimeout(() => { statusEl.textContent = ""; }, 2000);
 }
 
 /* ── MÉTRICAS ── */
@@ -485,6 +591,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderCategoryMarkupInputs();
     loadAdminProducts();
     loadMetrics();
+    loadShippingZones();
   } else {
     showLoggedOut();
   }

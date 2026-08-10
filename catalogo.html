@@ -60,6 +60,10 @@
       <button type="button" class="cart-drawer-close" onclick="toggleCart()" aria-label="Cerrar pedido">✕</button>
     </div>
     <div class="cart-drawer-items" id="cartDrawerItems"></div>
+    <div class="cart-shipping" id="cartShipping" style="display:none;">
+      <label for="shippingZoneSelect">Zona de entrega</label>
+      <select id="shippingZoneSelect" onchange="updateShippingSelection()"></select>
+    </div>
     <div class="cart-drawer-total" id="cartDrawerTotal"></div>
     <div class="cart-drawer-footer">
       <button type="button" class="btn btn-wa cart-drawer-send" onclick="sendToWhatsApp()">
