@@ -40,18 +40,19 @@ function getSelectedShippingCost() {
 }
 
 function renderShippingSelect() {
-  const wrap = document.getElementById("cartShipping");
   const select = document.getElementById("shippingZoneSelect");
-  if (!wrap || !select) return;
-
-  if (shippingZones.length === 0) {
-    wrap.style.display = "none";
-    return;
-  }
-
+  if (!select) return;
   select.innerHTML = `<option value="">Elegí tu barrio...</option>` + shippingZones.map(z =>
     `<option value="${z.id}" ${String(z.id) === String(selectedShippingZoneId) ? "selected" : ""}>${z.name} — ${formatPrice(z.cost)}</option>`
   ).join("");
+  updateShippingVisibility();
+}
+
+function updateShippingVisibility() {
+  const wrap = document.getElementById("cartShipping");
+  if (!wrap) return;
+  const delivery = document.querySelector('input[name="deliveryMethod"]:checked')?.value;
+  wrap.style.display = (delivery === "envio" && shippingZones.length > 0) ? "flex" : "none";
 }
 
 function updateShippingSelection() {
@@ -59,6 +60,18 @@ function updateShippingSelection() {
   if (!select) return;
   selectedShippingZoneId = select.value || "";
   localStorage.setItem(SHIPPING_STORAGE_KEY, selectedShippingZoneId);
+  renderCartDrawer();
+}
+
+function handleDeliveryMethodChange() {
+  const delivery = document.querySelector('input[name="deliveryMethod"]:checked')?.value;
+  if (delivery === "retiro") {
+    selectedShippingZoneId = "";
+    localStorage.setItem(SHIPPING_STORAGE_KEY, "");
+    const select = document.getElementById("shippingZoneSelect");
+    if (select) select.value = "";
+  }
+  updateShippingVisibility();
   renderCartDrawer();
 }
 
@@ -193,24 +206,24 @@ function toggleCart() {
   cartOpen = !cartOpen;
   drawer.classList.toggle("open", cartOpen);
   overlay.classList.toggle("open", cartOpen);
-  if (cartOpen) renderCartDrawer();
+  if (cartOpen) {
+    backToFormStep();
+    renderCartDrawer();
+  }
 }
 
 function renderCartDrawer() {
   const el = document.getElementById("cartDrawerItems");
   const totalEl = document.getElementById("cartDrawerTotal");
-  const shippingWrap = document.getElementById("cartShipping");
   if (!el) return;
   const ids = Object.keys(cart);
 
   if (ids.length === 0) {
-    el.innerHTML = `<p class="cart-drawer-empty">Todavía no agregaste productos.</p>`;
+    el.innerHTML = `<p class="cart-drawer-empty">Todavía no agregaste productos. Agregá productos para continuar.</p>`;
     if (totalEl) totalEl.innerHTML = "";
-    if (shippingWrap) shippingWrap.style.display = "none";
+    updateContinueButtonState();
     return;
   }
-
-  if (shippingWrap) shippingWrap.style.display = shippingZones.length > 0 ? "flex" : "none";
 
   let total = 0;
   let missingPrice = false;
@@ -232,8 +245,9 @@ function renderCartDrawer() {
     `;
   }).join("");
 
-  const shippingZone = getSelectedShippingZone();
-  const shippingCost = getSelectedShippingCost();
+  const delivery = document.querySelector('input[name="deliveryMethod"]:checked')?.value;
+  const shippingZone = delivery === "envio" ? getSelectedShippingZone() : null;
+  const shippingCost = delivery === "envio" ? getSelectedShippingCost() : 0;
   const grandTotal = total + shippingCost;
 
   if (totalEl) {
@@ -251,12 +265,81 @@ function renderCartDrawer() {
       ${missingPrice ? `<p class="cart-drawer-total-note">* Hay productos sin precio cargado, se confirma por WhatsApp.</p>` : ""}
     `;
   }
+
+  updateContinueButtonState();
 }
 
-function sendToWhatsApp() {
-  const ids = Object.keys(cart);
-  if (ids.length === 0) return;
+/* ── VALIDACIÓN Y CONFIRMACIÓN DEL PEDIDO ── */
+function isOrderValid() {
+  const cartHasItems = Object.keys(cart).length > 0;
+  const name = document.getElementById("orderName")?.value.trim();
+  const phone = document.getElementById("orderPhone")?.value.trim();
+  const delivery = document.querySelector('input[name="deliveryMethod"]:checked')?.value;
+  const payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+  const zoneOk = delivery !== "envio" || !!selectedShippingZoneId;
+  return cartHasItems && !!name && !!phone && !!delivery && !!payment && zoneOk;
+}
 
+function updateContinueButtonState() {
+  const btn = document.getElementById("cartContinueBtn");
+  if (!btn) return;
+  btn.disabled = !isOrderValid();
+}
+
+function goToConfirmStep() {
+  if (!isOrderValid()) return;
+  document.getElementById("cartFormStep").style.display = "none";
+  document.getElementById("cartConfirmStep").style.display = "block";
+  renderConfirmSummary();
+}
+
+function backToFormStep() {
+  const confirmStep = document.getElementById("cartConfirmStep");
+  const formStep = document.getElementById("cartFormStep");
+  if (confirmStep) confirmStep.style.display = "none";
+  if (formStep) formStep.style.display = "block";
+}
+
+function renderConfirmSummary() {
+  const el = document.getElementById("cartConfirmSummary");
+  if (!el) return;
+  const ids = Object.keys(cart);
+
+  let total = 0;
+  let missingPrice = false;
+  const itemsHtml = ids.map(id => {
+    const product = PRODUCTS.find(p => p.id === Number(id));
+    const qty = cart[id];
+    const lineTotal = product.price != null ? product.price * qty : null;
+    if (lineTotal != null) total += lineTotal; else missingPrice = true;
+    return `<div class="cart-confirm-item"><span>${product.name} x${qty}</span><span>${lineTotal != null ? formatPrice(lineTotal) : "—"}</span></div>`;
+  }).join("");
+
+  const delivery = document.querySelector('input[name="deliveryMethod"]:checked')?.value;
+  const payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+  const name = document.getElementById("orderName").value.trim();
+  const phone = document.getElementById("orderPhone").value.trim();
+  const shippingZone = delivery === "envio" ? getSelectedShippingZone() : null;
+  const shippingCost = delivery === "envio" ? getSelectedShippingCost() : 0;
+  const grandTotal = total + shippingCost;
+
+  const deliveryLabel = delivery === "envio" ? `Envío a ${shippingZone ? shippingZone.name : ""}` : "Retiro en Liniers";
+  const paymentLabel = payment === "efectivo" ? "Efectivo" : "Transferencia";
+
+  el.innerHTML = `
+    <div class="cart-confirm-items">${itemsHtml}</div>
+    <div class="cart-confirm-row"><span>Entrega</span><span>${deliveryLabel}</span></div>
+    ${delivery === "envio" ? `<div class="cart-confirm-row"><span>Costo de envío</span><span>${formatPrice(shippingCost)}</span></div>` : ""}
+    <div class="cart-confirm-row"><span>Pago</span><span>${paymentLabel}</span></div>
+    <div class="cart-confirm-row"><span>Nombre</span><span>${name}</span></div>
+    <div class="cart-confirm-row"><span>Teléfono</span><span>${phone}</span></div>
+    <div class="cart-confirm-row cart-confirm-total"><span>Total${missingPrice ? " estimado" : ""}</span><strong>${formatPrice(grandTotal)}</strong></div>
+    ${missingPrice ? `<p class="cart-drawer-total-note">* Hay productos sin precio cargado, se confirma por WhatsApp.</p>` : ""}
+  `;
+}
+
+function buildOrderMessage() {
+  const ids = Object.keys(cart);
   let total = 0;
   let missingPrice = false;
   const items = ids.map(id => {
@@ -267,16 +350,27 @@ function sendToWhatsApp() {
     return `• ${product.name}${product.brand ? ` (${product.brand})` : ""} x${qty}${lineTotal != null ? ` — ${formatPrice(lineTotal)}` : ""}`;
   }).join("\n");
 
-  const shippingZone = getSelectedShippingZone();
-  const shippingCost = getSelectedShippingCost();
+  const delivery = document.querySelector('input[name="deliveryMethod"]:checked')?.value;
+  const payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+  const name = document.getElementById("orderName").value.trim();
+  const phone = document.getElementById("orderPhone").value.trim();
+  const shippingZone = delivery === "envio" ? getSelectedShippingZone() : null;
+  const shippingCost = delivery === "envio" ? getSelectedShippingCost() : 0;
   const grandTotal = total + shippingCost;
-  const shippingLine = shippingZone ? `Envío a ${shippingZone.name}: ${formatPrice(shippingCost)}\n` : "";
 
+  const deliveryLine = delivery === "envio"
+    ? `Entrega: Envío a ${shippingZone ? shippingZone.name : "(zona sin confirmar)"} — ${formatPrice(shippingCost)}`
+    : "Entrega: Retiro en Liniers";
+  const paymentLine = `Pago: ${payment === "efectivo" ? "Efectivo" : "Transferencia"}`;
   const totalLine = missingPrice
-    ? `${shippingLine}Total estimado: ${formatPrice(grandTotal)} (hay productos sin precio confirmado)`
-    : `${shippingLine}Total: ${formatPrice(grandTotal)}`;
+    ? `Total estimado: ${formatPrice(grandTotal)} (hay productos sin precio confirmado)`
+    : `Total: ${formatPrice(grandTotal)}`;
 
-  const msg = `Hola! Me gustaría hacer un pedido:\n\n${items}\n\n${totalLine}\n\n¿Podrían confirmar disponibilidad?`;
+  return `Hola! Me gustaría hacer un pedido:\n\n${items}\n\n${deliveryLine}\n${paymentLine}\n${totalLine}\n\nNombre: ${name}\nTeléfono: ${phone}\n\n¿Podrían confirmar disponibilidad?`;
+}
+
+function sendToWhatsApp() {
+  const msg = buildOrderMessage();
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
   logEvent("whatsapp_order", {});
 }
@@ -285,75 +379,38 @@ function sendToWhatsApp() {
 // TODO: reemplazar por el endpoint real una vez creada la cuenta gratuita en https://formspree.io
 const CONTACT_FORM_ENDPOINT = "https://formspree.io/f/TU_FORM_ID";
 
-function toggleContactForm() {
-  const form = document.getElementById("cartContactForm");
-  if (!form) return;
-  form.classList.toggle("open");
-}
-
-function buildOrderSummary() {
-  const ids = Object.keys(cart);
-  if (ids.length === 0) return "(No agregó productos, solo pidió que lo contactemos.)";
-
-  let total = 0;
-  let missingPrice = false;
-  const lines = ids.map(id => {
-    const product = PRODUCTS.find(p => p.id === Number(id));
-    const qty = cart[id];
-    const lineTotal = product.price != null ? product.price * qty : null;
-    if (lineTotal != null) total += lineTotal; else missingPrice = true;
-    return `- ${product.name}${product.brand ? ` (${product.brand})` : ""} x${qty}${lineTotal != null ? ` — ${formatPrice(lineTotal)}` : ""}`;
-  }).join("\n");
-
-  const shippingZone = getSelectedShippingZone();
-  const shippingCost = getSelectedShippingCost();
-  const grandTotal = total + shippingCost;
-  const shippingLine = shippingZone ? `Envío a ${shippingZone.name}: ${formatPrice(shippingCost)}\n` : "";
-
-  const totalLine = missingPrice
-    ? `${shippingLine}Total estimado: ${formatPrice(grandTotal)} (hay productos sin precio confirmado)`
-    : `${shippingLine}Total: ${formatPrice(grandTotal)}`;
-
-  return `${lines}\n\n${totalLine}`;
-}
-
-async function submitContactForm(event) {
-  event.preventDefault();
-  const form = event.target;
-  const status = document.getElementById("cartContactStatus");
-  const submitBtn = form.querySelector(".cart-contact-submit");
+async function submitOrderViaFormspree() {
+  const statusEl = document.getElementById("cartContactStatus");
+  const btn = document.getElementById("cartFormspreeBtn");
 
   if (CONTACT_FORM_ENDPOINT.includes("TU_FORM_ID")) {
-    status.textContent = "Este formulario todavía no está configurado. Escribinos por WhatsApp mientras tanto.";
-    status.className = "cart-contact-status error";
+    statusEl.textContent = "Este medio todavía no está configurado. Probá confirmando por WhatsApp.";
+    statusEl.className = "cart-contact-status error";
     return;
   }
 
-  submitBtn.disabled = true;
-  status.textContent = "Enviando...";
-  status.className = "cart-contact-status";
+  const name = document.getElementById("orderName").value.trim();
+  const phone = document.getElementById("orderPhone").value.trim();
+
+  btn.disabled = true;
+  statusEl.textContent = "Enviando...";
+  statusEl.className = "cart-contact-status";
 
   try {
     const res = await fetch(CONTACT_FORM_ENDPOINT, {
       method: "POST",
       headers: { "Accept": "application/json", "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nombre: form.name.value.trim(),
-        telefono: form.phone.value.trim(),
-        email: form.email.value.trim(),
-        pedido: buildOrderSummary()
-      })
+      body: JSON.stringify({ nombre: name, telefono: phone, pedido: buildOrderMessage() })
     });
     if (!res.ok) throw new Error("request failed");
-    status.textContent = "¡Listo! Te vamos a contactar a la brevedad.";
-    status.className = "cart-contact-status success";
-    form.reset();
+    statusEl.textContent = "¡Listo! Te vamos a contactar a la brevedad.";
+    statusEl.className = "cart-contact-status success";
     logEvent("contact_form", {});
   } catch {
-    status.textContent = "No pudimos enviar tus datos. Probá de nuevo o escribinos por WhatsApp.";
-    status.className = "cart-contact-status error";
+    statusEl.textContent = "No pudimos enviar tus datos. Probá de nuevo o confirmá por WhatsApp.";
+    statusEl.className = "cart-contact-status error";
   } finally {
-    submitBtn.disabled = false;
+    btn.disabled = false;
   }
 }
 
