@@ -376,8 +376,7 @@ function sendToWhatsApp() {
 }
 
 /* ── CONTACTO ALTERNATIVO (sin WhatsApp) ── */
-// TODO: reemplazar por el endpoint real una vez creada la cuenta gratuita en https://formspree.io
-const CONTACT_FORM_ENDPOINT = "https://formspree.io/f/TU_FORM_ID";
+const CONTACT_FORM_ENDPOINT = "https://formspree.io/f/xrpzqyea";
 
 async function submitOrderViaFormspree() {
   const statusEl = document.getElementById("cartContactStatus");
