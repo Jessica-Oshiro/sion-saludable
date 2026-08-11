@@ -187,7 +187,22 @@ function clearCart() {
   saveCart();
   updateCartBadge();
   renderAll();
+
+  const nameInput = document.getElementById("orderName");
+  const phoneInput = document.getElementById("orderPhone");
+  if (nameInput) nameInput.value = "";
+  if (phoneInput) phoneInput.value = "";
+  document.querySelectorAll('input[name="deliveryMethod"]').forEach(r => r.checked = false);
+  document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.checked = false);
+
+  selectedShippingZoneId = "";
+  localStorage.setItem(SHIPPING_STORAGE_KEY, "");
+  const shippingSelect = document.getElementById("shippingZoneSelect");
+  if (shippingSelect) shippingSelect.value = "";
+  updateShippingVisibility();
+
   renderCartDrawer();
+  updateContinueButtonState();
 }
 
 function updateCartBadge() {
