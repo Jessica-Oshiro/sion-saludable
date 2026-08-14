@@ -95,6 +95,28 @@
 
         <div class="admin-chart-card">
           <div class="admin-chart-header">
+            <h3>Visitas por día de la semana</h3>
+            <button type="button" class="admin-chart-table-toggle" onclick="toggleChartTable('weekday')">Ver como tabla</button>
+          </div>
+          <div class="admin-weekday-controls">
+            <div class="admin-mode-tabs">
+              <button type="button" class="admin-mode-tab active" data-mode="week" onclick="setWeekdayMode('week')">Semana</button>
+              <button type="button" class="admin-mode-tab" data-mode="month" onclick="setWeekdayMode('month')">Mes</button>
+            </div>
+            <input type="week" id="weekdayDateInput" class="admin-weekday-date-input" onchange="renderWeekdayChart()">
+          </div>
+          <div class="admin-hourly-chart-wrap" id="weekdayChartWrap">
+            <div id="weekdayChart" class="admin-hourly-plot"></div>
+            <div id="weekdayLabels" class="admin-hourly-labels"></div>
+          </div>
+          <table id="weekdayChartTable" class="admin-chart-table" style="display:none;">
+            <thead><tr><th>Día</th><th>Visitas</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="admin-chart-card">
+          <div class="admin-chart-header">
             <h3>Productos más agregados al carrito</h3>
             <button type="button" class="admin-chart-table-toggle" onclick="toggleChartTable('products')">Ver como tabla</button>
           </div>

@@ -333,10 +333,13 @@ async function loadMetrics() {
     statsEl.innerHTML = `<p class="admin-row-status error">Todavía no hay datos de métricas (¿falta crear la tabla "events"?).</p>`;
     topEl.innerHTML = `<li class="admin-loading">Todavía no hay datos suficientes.</li>`;
     renderHourlyChart(new Array(24).fill(0));
+    allPageViews = [];
+    renderWeekdayChart();
     return;
   }
 
   const pageViews = data.filter(e => e.type === "page_view");
+  allPageViews = pageViews;
   const addToCart = data.filter(e => e.type === "add_to_cart");
   const whatsappOrders = data.filter(e => e.type === "whatsapp_order");
   const contactForms = data.filter(e => e.type === "contact_form");
@@ -378,6 +381,8 @@ async function loadMetrics() {
   });
   const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
   renderTopProductsChart(ranked);
+
+  renderWeekdayChart();
 }
 
 /* ── GRÁFICOS (sin librerías externas) ── */
@@ -387,6 +392,18 @@ function getArgentinaHour(isoString) {
   const utcDate = new Date(isoString);
   const arDate = new Date(utcDate.getTime() - 3 * 60 * 60 * 1000);
   return arDate.getUTCHours();
+}
+
+// weekday: 0=lunes .. 6=domingo (getUTCDay() nativo es 0=domingo, se remapea).
+function getArgentinaDateParts(isoString) {
+  const utcDate = new Date(isoString);
+  const arDate = new Date(utcDate.getTime() - 3 * 60 * 60 * 1000);
+  return {
+    year: arDate.getUTCFullYear(),
+    month: arDate.getUTCMonth(),
+    day: arDate.getUTCDate(),
+    weekday: (arDate.getUTCDay() + 6) % 7
+  };
 }
 
 function niceMax(value) {
@@ -484,6 +501,140 @@ function renderTopProductsChart(ranked) {
   });
 }
 
+/* ── GRÁFICO DE BARRAS: VISITAS POR DÍA DE LA SEMANA ── */
+const WEEKDAY_LABELS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+const WEEKDAY_FULL_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+const WEEKDAY_PLURAL = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábados", "domingos"];
+let allPageViews = [];
+let weekdayMode = "week";
+
+// Algoritmo estándar de semana ISO-8601 (año/semana <-> lunes de esa semana),
+// usado como calculadora de calendario pura (sin husos horarios de por medio).
+function getIsoWeekInfo(year, month, day) {
+  const date = new Date(Date.UTC(year, month, day));
+  const dayNum = (date.getUTCDay() + 6) % 7;
+  date.setUTCDate(date.getUTCDate() - dayNum + 3);
+  const isoYear = date.getUTCFullYear();
+  const firstThursday = new Date(Date.UTC(isoYear, 0, 4));
+  const firstThursdayDayNum = (firstThursday.getUTCDay() + 6) % 7;
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - firstThursdayDayNum + 3);
+  const week = 1 + Math.round((date - firstThursday) / (7 * 86400000));
+  return { isoYear, week };
+}
+
+function getMondayOfIsoWeek(isoYear, week) {
+  const jan4 = new Date(Date.UTC(isoYear, 0, 4));
+  const jan4DayNum = (jan4.getUTCDay() + 6) % 7;
+  const week1Monday = new Date(jan4.getTime() - jan4DayNum * 86400000);
+  return new Date(week1Monday.getTime() + (week - 1) * 7 * 86400000);
+}
+
+function getArgentinaNowParts() {
+  const arNow = new Date(Date.now() - 3 * 60 * 60 * 1000);
+  return { year: arNow.getUTCFullYear(), month: arNow.getUTCMonth(), day: arNow.getUTCDate() };
+}
+
+function defaultWeekdayInputValue(mode) {
+  const now = getArgentinaNowParts();
+  if (mode === "month") return `${now.year}-${String(now.month + 1).padStart(2, "0")}`;
+  const { isoYear, week } = getIsoWeekInfo(now.year, now.month, now.day);
+  return `${isoYear}-W${String(week).padStart(2, "0")}`;
+}
+
+function setWeekdayMode(mode) {
+  weekdayMode = mode;
+  document.querySelectorAll(".admin-mode-tab").forEach(btn => btn.classList.toggle("active", btn.dataset.mode === mode));
+  const input = document.getElementById("weekdayDateInput");
+  input.type = mode === "month" ? "month" : "week";
+  input.value = defaultWeekdayInputValue(mode);
+  renderWeekdayChart();
+}
+
+function computeWeekdayCounts() {
+  const input = document.getElementById("weekdayDateInput");
+  if (!input.value) input.value = defaultWeekdayInputValue(weekdayMode);
+
+  const counts = new Array(7).fill(0);
+
+  if (weekdayMode === "month") {
+    const [yearStr, monthStr] = input.value.split("-");
+    const year = Number(yearStr);
+    const month = Number(monthStr) - 1;
+    allPageViews.forEach(e => {
+      const parts = getArgentinaDateParts(e.created_at);
+      if (parts.year === year && parts.month === month) counts[parts.weekday]++;
+    });
+    return { counts, dayDates: null };
+  }
+
+  const [yearStr, weekStr] = input.value.split("-W");
+  const monday = getMondayOfIsoWeek(Number(yearStr), Number(weekStr));
+  const dayDates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday.getTime() + i * 86400000);
+    dayDates.push({ year: d.getUTCFullYear(), month: d.getUTCMonth(), day: d.getUTCDate() });
+  }
+  allPageViews.forEach(e => {
+    const parts = getArgentinaDateParts(e.created_at);
+    const idx = dayDates.findIndex(d => d.year === parts.year && d.month === parts.month && d.day === parts.day);
+    if (idx !== -1) counts[idx]++;
+  });
+  return { counts, dayDates };
+}
+
+function renderWeekdayChart() {
+  const chartEl = document.getElementById("weekdayChart");
+  const labelsEl = document.getElementById("weekdayLabels");
+  const tableBody = document.querySelector("#weekdayChartTable tbody");
+  if (!chartEl || !labelsEl || !tableBody) return;
+
+  const { counts, dayDates } = computeWeekdayCounts();
+  const max = niceMax(Math.max(...counts, 0));
+  const plotHeight = 140;
+
+  const gridlines = [...new Set([max, Math.round(max / 2)])].map(value => {
+    const topPx = Math.round(plotHeight - (plotHeight * value / max));
+    return `
+      <div class="admin-hourly-gridline" style="top:${topPx}px"></div>
+      <div class="admin-hourly-gridline-label" style="top:${topPx}px">${value}</div>
+    `;
+  }).join("");
+
+  const bars = counts.map((count, idx) => `
+    <div class="admin-hour-col" tabindex="0" data-idx="${idx}" data-count="${count}">
+      <div class="admin-hour-bar" style="height:${Math.round(plotHeight * count / max)}px"></div>
+    </div>
+  `).join("");
+
+  chartEl.innerHTML = gridlines + bars;
+  labelsEl.innerHTML = WEEKDAY_LABELS.map(label => `<span class="admin-hour-label-col">${label}</span>`).join("");
+
+  chartEl.querySelectorAll(".admin-hour-col").forEach(col => {
+    const idx = Number(col.dataset.idx);
+    const count = col.dataset.count;
+    const labelText = dayDates
+      ? `${WEEKDAY_FULL_NAMES[idx]} ${dayDates[idx].day}/${dayDates[idx].month + 1}`
+      : `todos los ${WEEKDAY_PLURAL[idx]} del mes`;
+    const showTooltip = event => showChartTooltip(event, `${count} visita${count === "1" ? "" : "s"}`, labelText);
+    col.addEventListener("mouseenter", showTooltip);
+    col.addEventListener("mousemove", showTooltip);
+    col.addEventListener("mouseleave", hideChartTooltip);
+    col.addEventListener("focus", showTooltip);
+    col.addEventListener("blur", hideChartTooltip);
+  });
+
+  tableBody.innerHTML = "";
+  counts.forEach((count, idx) => {
+    const tr = document.createElement("tr");
+    const tdDay = document.createElement("td");
+    tdDay.textContent = dayDates ? `${WEEKDAY_LABELS[idx]} ${dayDates[idx].day}/${dayDates[idx].month + 1}` : WEEKDAY_LABELS[idx];
+    const tdCount = document.createElement("td");
+    tdCount.textContent = String(count);
+    tr.append(tdDay, tdCount);
+    tableBody.appendChild(tr);
+  });
+}
+
 /* ── TOOLTIP COMPARTIDO ── */
 function showChartTooltip(event, valueText, labelText) {
   const tooltip = document.getElementById("adminChartTooltip");
@@ -502,10 +653,17 @@ function hideChartTooltip() {
 }
 
 /* ── TOGGLE GRÁFICO / TABLA ── */
+const CHART_TOGGLE_TARGETS = {
+  hourly: { chart: "hourlyChartWrap", table: "hourlyChartTable" },
+  products: { chart: "adminTopProducts", table: "productsChartTable" },
+  weekday: { chart: "weekdayChartWrap", table: "weekdayChartTable" }
+};
+
 function toggleChartTable(kind) {
-  const chartEl = kind === "hourly" ? document.getElementById("hourlyChart").parentElement : document.getElementById("adminTopProducts");
-  const tableEl = document.getElementById(kind === "hourly" ? "hourlyChartTable" : "productsChartTable");
-  const btn = chartEl.parentElement.querySelector(".admin-chart-table-toggle");
+  const target = CHART_TOGGLE_TARGETS[kind];
+  const chartEl = document.getElementById(target.chart);
+  const tableEl = document.getElementById(target.table);
+  const btn = chartEl.closest(".admin-chart-card").querySelector(".admin-chart-table-toggle");
   const showingTable = tableEl.style.display !== "none";
   tableEl.style.display = showingTable ? "none" : "table";
   chartEl.style.display = showingTable ? "" : "none";
