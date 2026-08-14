@@ -285,6 +285,8 @@ function renderCartDrawer() {
 }
 
 /* ── VALIDACIÓN Y CONFIRMACIÓN DEL PEDIDO ── */
+const PAYMENT_LABELS = { efectivo: "Efectivo", transferencia: "Transferencia", mercadopago: "Mercado Pago" };
+
 function isOrderValid() {
   const cartHasItems = Object.keys(cart).length > 0;
   const name = document.getElementById("orderName")?.value.trim();
@@ -339,7 +341,7 @@ function renderConfirmSummary() {
   const grandTotal = total + shippingCost;
 
   const deliveryLabel = delivery === "envio" ? `Envío a ${shippingZone ? shippingZone.name : ""}` : "Retiro en Liniers";
-  const paymentLabel = payment === "efectivo" ? "Efectivo" : "Transferencia";
+  const paymentLabel = PAYMENT_LABELS[payment] || payment;
 
   el.innerHTML = `
     <div class="cart-confirm-items">${itemsHtml}</div>
@@ -376,12 +378,13 @@ function buildOrderMessage() {
   const deliveryLine = delivery === "envio"
     ? `Entrega: Envío a ${shippingZone ? shippingZone.name : "(zona sin confirmar)"} — ${formatPrice(shippingCost)}`
     : "Entrega: Retiro en Liniers";
-  const paymentLine = `Pago: ${payment === "efectivo" ? "Efectivo" : "Transferencia"}`;
+  const paymentLine = `Pago: ${PAYMENT_LABELS[payment] || payment}`;
+  const paymentNote = payment === "mercadopago" ? "\n(Te paso el link de pago por acá)" : "";
   const totalLine = missingPrice
     ? `Total estimado: ${formatPrice(grandTotal)} (hay productos sin precio confirmado)`
     : `Total: ${formatPrice(grandTotal)}`;
 
-  return `Hola! Me gustaría hacer un pedido:\n\n${items}\n\n${deliveryLine}\n${paymentLine}\n${totalLine}\n\nNombre: ${name}\nTeléfono: ${phone}\n\n¿Podrían confirmar disponibilidad?`;
+  return `Hola! Me gustaría hacer un pedido:\n\n${items}\n\n${deliveryLine}\n${paymentLine}${paymentNote}\n${totalLine}\n\nNombre: ${name}\nTeléfono: ${phone}\n\n¿Podrían confirmar disponibilidad?`;
 }
 
 function sendToWhatsApp() {
