@@ -35,6 +35,11 @@ function escapeHtml(str) {
   }[c]));
 }
 
+// mismo criterio que normalizeText() en js/main.js, para agrupar términos de búsqueda
+function normalizeText(str) {
+  return (str || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
 function formatAdminPrice(price) {
   if (price === null || price === undefined) return "—";
   return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(price);
@@ -325,7 +330,7 @@ async function loadMetrics() {
 
   const { data, error } = await sb
     .from("events")
-    .select("type, page, product_name, created_at")
+    .select("type, page, product_name, query, has_results, created_at")
     .order("created_at", { ascending: false })
     .limit(5000);
 
@@ -335,6 +340,7 @@ async function loadMetrics() {
     renderHourlyChart(new Array(24).fill(0));
     allPageViews = [];
     renderWeekdayChart();
+    renderTopBarChart([], "adminTopSearches", "searchTermsChartTable");
     return;
   }
 
@@ -380,7 +386,24 @@ async function loadMetrics() {
     counts[name] = (counts[name] || 0) + 1;
   });
   const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-  renderTopProductsChart(ranked);
+  renderTopBarChart(ranked, "adminTopProducts", "productsChartTable");
+
+  const searches = data.filter(e => e.type === "search" && e.query);
+  const searchStats = {};
+  searches.forEach(e => {
+    const term = normalizeText(e.query).trim();
+    if (!term) return;
+    if (!searchStats[term]) searchStats[term] = { count: 0, everHadResults: false };
+    searchStats[term].count++;
+    // has_results null = búsqueda registrada antes de agregar esta columna;
+    // el tracking viejo solo loggeaba búsquedas con resultado, así que null equivale a true.
+    if (e.has_results !== false) searchStats[term].everHadResults = true;
+  });
+  const rankedSearches = Object.entries(searchStats)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 10)
+    .map(([term, stats]) => [term, stats.count, !stats.everHadResults]);
+  renderTopBarChart(rankedSearches, "adminTopSearches", "searchTermsChartTable");
 
   renderWeekdayChart();
 }
@@ -469,9 +492,10 @@ function renderHourlyChart(hourlyCounts) {
   });
 }
 
-function renderTopProductsChart(ranked) {
-  const topEl = document.getElementById("adminTopProducts");
-  const tableBody = document.querySelector("#productsChartTable tbody");
+// ranked: [name, count, noResults?][] — noResults es opcional (marca el ítem con la badge roja)
+function renderTopBarChart(ranked, listElId, tableElId) {
+  const topEl = document.getElementById(listElId);
+  const tableBody = document.querySelector(`#${tableElId} tbody`);
   if (!topEl || !tableBody) return;
 
   if (ranked.length === 0) {
@@ -481,19 +505,20 @@ function renderTopProductsChart(ranked) {
   }
 
   const max = ranked[0][1];
-  topEl.innerHTML = ranked.map(([name, count]) => `
+  topEl.innerHTML = ranked.map(([name, count, noResults]) => `
     <li>
       <span class="admin-top-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
-      <span class="admin-top-bar-track"><span class="admin-top-bar-fill" style="width:${Math.round(count / max * 100)}%"></span></span>
+      ${noResults ? `<span class="admin-top-badge" title="Nunca encontró resultados en el catálogo">⚠ Sin resultados</span>` : ""}
+      <span class="admin-top-bar-track"><span class="admin-top-bar-fill${noResults ? " admin-top-bar-fill-warn" : ""}" style="width:${Math.round(count / max * 100)}%"></span></span>
       <span class="admin-top-count">${count}</span>
     </li>
   `).join("");
 
   tableBody.innerHTML = "";
-  ranked.forEach(([name, count]) => {
+  ranked.forEach(([name, count, noResults]) => {
     const tr = document.createElement("tr");
     const tdName = document.createElement("td");
-    tdName.textContent = name;
+    tdName.textContent = name + (noResults ? " (sin resultados)" : "");
     const tdCount = document.createElement("td");
     tdCount.textContent = String(count);
     tr.append(tdName, tdCount);
@@ -656,6 +681,7 @@ function hideChartTooltip() {
 const CHART_TOGGLE_TARGETS = {
   hourly: { chart: "hourlyChartWrap", table: "hourlyChartTable" },
   products: { chart: "adminTopProducts", table: "productsChartTable" },
+  searchTerms: { chart: "adminTopSearches", table: "searchTermsChartTable" },
   weekday: { chart: "weekdayChartWrap", table: "weekdayChartTable" }
 };
 

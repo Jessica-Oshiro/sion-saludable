@@ -126,6 +126,18 @@
             <tbody></tbody>
           </table>
         </div>
+
+        <div class="admin-chart-card">
+          <div class="admin-chart-header">
+            <h3>Términos más buscados en el catálogo</h3>
+            <button type="button" class="admin-chart-table-toggle" onclick="toggleChartTable('searchTerms')">Ver como tabla</button>
+          </div>
+          <ol id="adminTopSearches" class="admin-top-products-list"></ol>
+          <table id="searchTermsChartTable" class="admin-chart-table" style="display:none;">
+            <thead><tr><th>Término</th><th>Veces buscado</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
 
       <div id="adminChartTooltip" class="admin-chart-tooltip" role="tooltip"></div>

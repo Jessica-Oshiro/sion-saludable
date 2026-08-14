@@ -476,6 +476,9 @@ h3 { font-size: 1.3rem; }
 .admin-top-bar-fill { display: block; height: 100%; background: var(--green); border-radius: 0 4px 4px 0; min-width: 4px; transition: background 0.15s; }
 .admin-top-products-list li:hover .admin-top-bar-fill, .admin-top-products-list li:focus-within .admin-top-bar-fill { background: var(--green-light); }
 .admin-top-count { flex: 0 0 auto; min-width: 26px; text-align: right; color: var(--heading); font-weight: 800; font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; }
+.admin-top-badge { flex: 0 0 auto; padding: 2px 8px; border-radius: var(--radius-pill); background: rgba(192,57,43,0.12); color: #c0392b; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.admin-top-bar-fill-warn { background: #c0392b; }
+.admin-top-products-list li:hover .admin-top-bar-fill-warn, .admin-top-products-list li:focus-within .admin-top-bar-fill-warn { background: #a5311f; }
 
 /* Tooltip compartido de los gráficos */
 .admin-chart-tooltip { position: fixed; z-index: 500; background: var(--green); color: white; font-size: 12px; padding: 6px 10px; border-radius: var(--radius-sm); pointer-events: none; opacity: 0; transition: opacity 0.1s; white-space: nowrap; }

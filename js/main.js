@@ -476,8 +476,7 @@ function initSearch() {
     searchDebounceTimer = setTimeout(() => {
       if (term.length < 2) return;
       const resultCount = getFilteredProducts(getCurrentFilter(), term).length;
-      if (resultCount === 0) return;
-      logEvent("search", { page: getPageName(), query: term });
+      logEvent("search", { page: getPageName(), query: term, has_results: resultCount > 0 });
     }, 800);
   });
 }
