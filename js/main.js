@@ -140,11 +140,24 @@ function renderFeatured() {
   el.innerHTML = featured.map(createProductCard).join("");
 }
 
-function renderCatalog(filter = "all") {
+function normalizeText(str) {
+  return (str || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+function getFilteredProducts(filter, searchTerm) {
+  let list = !filter || filter === "all" ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
+  const term = normalizeText(searchTerm).trim();
+  if (term) list = list.filter(p => normalizeText(p.name).includes(term));
+  return list;
+}
+
+function renderCatalog(filter = getCurrentFilter()) {
   const el = document.getElementById("catalogProducts");
   if (!el) return;
-  const filtered = filter === "all" ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
-  el.innerHTML = filtered.map(createProductCard).join("");
+  const filtered = getFilteredProducts(filter, currentSearchTerm);
+  el.innerHTML = filtered.length
+    ? filtered.map(createProductCard).join("")
+    : `<p class="products-empty">No encontramos productos con ese nombre.</p>`;
 }
 
 function renderAll() {
@@ -447,6 +460,28 @@ function initFilters() {
   });
 }
 
+/* ── BÚSQUEDA ── */
+let currentSearchTerm = "";
+let searchDebounceTimer = null;
+
+function initSearch() {
+  const input = document.getElementById("catalogSearch");
+  if (!input) return;
+  input.addEventListener("input", () => {
+    currentSearchTerm = input.value;
+    renderCatalog(getCurrentFilter());
+
+    clearTimeout(searchDebounceTimer);
+    const term = currentSearchTerm.trim();
+    searchDebounceTimer = setTimeout(() => {
+      if (term.length < 2) return;
+      const resultCount = getFilteredProducts(getCurrentFilter(), term).length;
+      if (resultCount === 0) return;
+      logEvent("search", { page: getPageName(), query: term });
+    }, 800);
+  });
+}
+
 /* ── NAV MOBILE ── */
 function toggleMenu() {
   const menu = document.getElementById("navMobile");
@@ -475,6 +510,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderFeatured();
   renderCatalog();
   initFilters();
+  initSearch();
   updateCartBadge();
   logEvent("page_view", { page: getPageName() });
 

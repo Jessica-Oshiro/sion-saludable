@@ -214,6 +214,13 @@ h3 { font-size: 1.3rem; }
 .page-header h1 { color: var(--heading); margin-bottom: 14px; text-transform: uppercase; font-size: clamp(2.4rem, 5vw, 3.8rem); }
 .page-header p { color: var(--text-soft); font-size: 18px; max-width: 540px; margin: 0 auto; }
 
+/* ── BÚSQUEDA DE PRODUCTOS ── */
+.catalog-search-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
+.catalog-search { width: 100%; max-width: 420px; padding: 12px 22px; border-radius: var(--radius-pill); border: 2px solid var(--heading); background: var(--surface); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; transition: border-color 0.2s; }
+.catalog-search::placeholder { color: var(--text-faint); }
+.catalog-search:focus { outline: none; border-color: var(--gold); }
+.products-empty { grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px 0; }
+
 /* ── FILTROS ── */
 .filters { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 40px; }
 .filter-btn { font-family: 'DM Sans', sans-serif; padding: 12px 22px; border-radius: var(--radius-pill); border: 2px solid var(--heading); background: var(--surface); font-size: 15px; font-weight: 700; color: var(--heading); cursor: pointer; transition: all 0.2s; }
