@@ -248,6 +248,8 @@ h3 { font-size: 1.3rem; }
 #cartConfirmStep .cart-drawer-footer { gap: 20px; }
 #cartConfirmStep .btn-wa { background: var(--green); }
 #cartConfirmStep .btn-wa:hover { background: var(--green-light); }
+#cartContinueBtn:not([disabled]) { background: var(--green); }
+#cartContinueBtn:not([disabled]):hover { background: var(--green-light); }
 .cart-clear { background: none; border: none; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.2s; }
 .cart-clear:hover { color: #c0392b; }
 
