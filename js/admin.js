@@ -332,6 +332,7 @@ async function loadMetrics() {
   if (error) {
     statsEl.innerHTML = `<p class="admin-row-status error">Todavía no hay datos de métricas (¿falta crear la tabla "events"?).</p>`;
     topEl.innerHTML = `<li class="admin-loading">Todavía no hay datos suficientes.</li>`;
+    renderHourlyChart(new Array(24).fill(0));
     return;
   }
 
@@ -366,21 +367,149 @@ async function loadMetrics() {
     </div>
   `;
 
+  const hourlyCounts = new Array(24).fill(0);
+  pageViews.forEach(e => { hourlyCounts[getArgentinaHour(e.created_at)]++; });
+  renderHourlyChart(hourlyCounts);
+
   const counts = {};
   addToCart.forEach(e => {
     const name = e.product_name || "Producto eliminado";
     counts[name] = (counts[name] || 0) + 1;
   });
   const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  renderTopProductsChart(ranked);
+}
 
-  topEl.innerHTML = ranked.length
-    ? ranked.map(([name, count]) => `
-        <li>
-          <span class="admin-top-name">${escapeHtml(name)}</span>
-          <span class="admin-top-count">${count}</span>
-        </li>
-      `).join("")
-    : `<li class="admin-loading">Todavía no hay datos suficientes.</li>`;
+/* ── GRÁFICOS (sin librerías externas) ── */
+
+// created_at llega en UTC; Argentina es UTC-3 todo el año (sin horario de verano).
+function getArgentinaHour(isoString) {
+  const utcDate = new Date(isoString);
+  const arDate = new Date(utcDate.getTime() - 3 * 60 * 60 * 1000);
+  return arDate.getUTCHours();
+}
+
+function niceMax(value) {
+  if (value <= 0) return 1;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+  const residual = value / magnitude;
+  const niceResidual = residual <= 1 ? 1 : residual <= 2 ? 2 : residual <= 5 ? 5 : 10;
+  return niceResidual * magnitude;
+}
+
+function renderHourlyChart(hourlyCounts) {
+  const chartEl = document.getElementById("hourlyChart");
+  const labelsEl = document.getElementById("hourlyLabels");
+  const tableBody = document.querySelector("#hourlyChartTable tbody");
+  if (!chartEl || !labelsEl || !tableBody) return;
+
+  const max = niceMax(Math.max(...hourlyCounts, 0));
+  const plotHeight = 140;
+
+  const gridlines = [...new Set([max, Math.round(max / 2)])].map(value => {
+    const topPx = Math.round(plotHeight - (plotHeight * value / max));
+    return `
+      <div class="admin-hourly-gridline" style="top:${topPx}px"></div>
+      <div class="admin-hourly-gridline-label" style="top:${topPx}px">${value}</div>
+    `;
+  }).join("");
+
+  const bars = hourlyCounts.map((count, hour) => {
+    const barPx = Math.round(plotHeight * count / max);
+    return `
+      <div class="admin-hour-col" tabindex="0" data-hour="${hour}" data-count="${count}">
+        <div class="admin-hour-bar" style="height:${barPx}px"></div>
+      </div>
+    `;
+  }).join("");
+
+  chartEl.innerHTML = gridlines + bars;
+
+  labelsEl.innerHTML = hourlyCounts.map((count, hour) =>
+    `<span class="admin-hour-label-col">${hour % 3 === 0 ? hour + "h" : ""}</span>`
+  ).join("");
+
+  chartEl.querySelectorAll(".admin-hour-col").forEach(col => {
+    const hour = col.dataset.hour;
+    const count = col.dataset.count;
+    const showTooltip = event => showChartTooltip(event, `${count} visita${count === "1" ? "" : "s"}`, `${hour}:00 – ${hour}:59`);
+    col.addEventListener("mouseenter", showTooltip);
+    col.addEventListener("mousemove", showTooltip);
+    col.addEventListener("mouseleave", hideChartTooltip);
+    col.addEventListener("focus", showTooltip);
+    col.addEventListener("blur", hideChartTooltip);
+  });
+
+  tableBody.innerHTML = "";
+  hourlyCounts.forEach((count, hour) => {
+    const tr = document.createElement("tr");
+    const tdHour = document.createElement("td");
+    tdHour.textContent = `${String(hour).padStart(2, "0")}:00`;
+    const tdCount = document.createElement("td");
+    tdCount.textContent = String(count);
+    tr.append(tdHour, tdCount);
+    tableBody.appendChild(tr);
+  });
+}
+
+function renderTopProductsChart(ranked) {
+  const topEl = document.getElementById("adminTopProducts");
+  const tableBody = document.querySelector("#productsChartTable tbody");
+  if (!topEl || !tableBody) return;
+
+  if (ranked.length === 0) {
+    topEl.innerHTML = `<li class="admin-loading">Todavía no hay datos suficientes.</li>`;
+    tableBody.innerHTML = "";
+    return;
+  }
+
+  const max = ranked[0][1];
+  topEl.innerHTML = ranked.map(([name, count]) => `
+    <li>
+      <span class="admin-top-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+      <span class="admin-top-bar-track"><span class="admin-top-bar-fill" style="width:${Math.round(count / max * 100)}%"></span></span>
+      <span class="admin-top-count">${count}</span>
+    </li>
+  `).join("");
+
+  tableBody.innerHTML = "";
+  ranked.forEach(([name, count]) => {
+    const tr = document.createElement("tr");
+    const tdName = document.createElement("td");
+    tdName.textContent = name;
+    const tdCount = document.createElement("td");
+    tdCount.textContent = String(count);
+    tr.append(tdName, tdCount);
+    tableBody.appendChild(tr);
+  });
+}
+
+/* ── TOOLTIP COMPARTIDO ── */
+function showChartTooltip(event, valueText, labelText) {
+  const tooltip = document.getElementById("adminChartTooltip");
+  if (!tooltip) return;
+  tooltip.innerHTML = "";
+  const strong = document.createElement("strong");
+  strong.textContent = valueText;
+  tooltip.append(strong, document.createTextNode(" — " + labelText));
+  tooltip.style.left = `${event.clientX + 12}px`;
+  tooltip.style.top = `${event.clientY - 12}px`;
+  tooltip.classList.add("visible");
+}
+
+function hideChartTooltip() {
+  document.getElementById("adminChartTooltip")?.classList.remove("visible");
+}
+
+/* ── TOGGLE GRÁFICO / TABLA ── */
+function toggleChartTable(kind) {
+  const chartEl = kind === "hourly" ? document.getElementById("hourlyChart").parentElement : document.getElementById("adminTopProducts");
+  const tableEl = document.getElementById(kind === "hourly" ? "hourlyChartTable" : "productsChartTable");
+  const btn = chartEl.parentElement.querySelector(".admin-chart-table-toggle");
+  const showingTable = tableEl.style.display !== "none";
+  tableEl.style.display = showingTable ? "none" : "table";
+  chartEl.style.display = showingTable ? "" : "none";
+  btn.textContent = showingTable ? "Ver como tabla" : "Ver como gráfico";
 }
 
 /* ── LISTADO DE PRODUCTOS ── */

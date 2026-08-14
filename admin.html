@@ -77,11 +77,36 @@
         <div class="admin-stats-grid" id="adminStats">
           <p class="admin-loading">Cargando métricas...</p>
         </div>
-        <div class="admin-top-products">
-          <h3>Productos más agregados al carrito</h3>
+
+        <div class="admin-chart-card">
+          <div class="admin-chart-header">
+            <h3>Visitas por hora del día</h3>
+            <button type="button" class="admin-chart-table-toggle" onclick="toggleChartTable('hourly')">Ver como tabla</button>
+          </div>
+          <div class="admin-hourly-chart-wrap" id="hourlyChartWrap">
+            <div id="hourlyChart" class="admin-hourly-plot"></div>
+            <div id="hourlyLabels" class="admin-hourly-labels"></div>
+          </div>
+          <table id="hourlyChartTable" class="admin-chart-table" style="display:none;">
+            <thead><tr><th>Hora (Argentina)</th><th>Visitas</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="admin-chart-card">
+          <div class="admin-chart-header">
+            <h3>Productos más agregados al carrito</h3>
+            <button type="button" class="admin-chart-table-toggle" onclick="toggleChartTable('products')">Ver como tabla</button>
+          </div>
           <ol id="adminTopProducts" class="admin-top-products-list"></ol>
+          <table id="productsChartTable" class="admin-chart-table" style="display:none;">
+            <thead><tr><th>Producto</th><th>Veces agregado</th></tr></thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
+
+      <div id="adminChartTooltip" class="admin-chart-tooltip" role="tooltip"></div>
 
       <div class="admin-section" data-section="add" style="display:none;">
         <h2>Agregar producto nuevo</h2>
