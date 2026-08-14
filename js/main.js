@@ -293,7 +293,7 @@ function isOrderValid() {
   const phone = document.getElementById("orderPhone")?.value.trim();
   const delivery = document.querySelector('input[name="deliveryMethod"]:checked')?.value;
   const payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-  const zoneOk = delivery !== "envio" || !!selectedShippingZoneId;
+  const zoneOk = delivery !== "envio" || !!selectedShippingZoneId || shippingZones.length === 0;
   return cartHasItems && !!name && !!phone && !!delivery && !!payment && zoneOk;
 }
 
