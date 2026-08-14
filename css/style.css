@@ -250,7 +250,7 @@ h3 { font-size: 1.3rem; }
 
 .cart-drawer-send[disabled] { background: var(--border); color: var(--text-muted); opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
-.cart-order-fields { display: flex; flex-direction: column; gap: 12px; padding-top: 4px; }
+.cart-order-fields { display: flex; flex-direction: column; gap: 12px; padding-top: 4px; margin-bottom: 12px; }
 .cart-order-fields input[type="text"], .cart-order-fields input[type="tel"] { width: 100%; padding: 11px 14px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--surface); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; }
 .cart-order-fields input:focus { outline: none; border-color: var(--heading); }
 .cart-order-group { display: flex; flex-direction: column; gap: 8px; }
