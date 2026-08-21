@@ -131,10 +131,10 @@ h3 { font-size: 1.3rem; }
   position: absolute; top: 0; left: 0; right: 0; height: 8px;
   background: linear-gradient(90deg, #C0392B, #E67E22, #F1C40F, #8BC34A, #5B9EA0);
 }
-.hero-logo { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-md); margin: 0 auto 24px; }
+.hero-logo { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-md); margin: 0 auto 24px; }
 .hero-content { max-width: 660px; margin: 0 auto; }
 .hero-eyebrow { display: inline-block; font-size: 12px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
-.hero-title { color: var(--heading); margin-bottom: 18px; letter-spacing: 0.3px; }
+.hero-title { color: var(--heading); margin-bottom: 18px; letter-spacing: 0.5px; line-height: 0.95; text-transform: uppercase; }
 .hero-title em { color: var(--gold); font-style: normal; }
 .hero-sub { font-size: 1.05rem; color: var(--text-soft); line-height: 1.7; margin-bottom: 32px; font-weight: 400; }
 .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
@@ -226,6 +226,14 @@ h3 { font-size: 1.3rem; }
 .filter-btn { font-family: 'DM Sans', sans-serif; padding: 12px 22px; border-radius: var(--radius-pill); border: 2px solid var(--heading); background: var(--surface); font-size: 15px; font-weight: 700; color: var(--heading); cursor: pointer; transition: all 0.2s; }
 .filter-btn:hover { background: var(--card-tan); }
 .filter-btn.active { background: var(--green); color: var(--cream); border-color: var(--green); }
+
+/* ── BARRA FLOTANTE DE PEDIDO (catálogo) ── */
+.cart-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 200; display: none; justify-content: center; padding: 16px; pointer-events: none; }
+.cart-bar.visible { display: flex; }
+.cart-bar-inner { pointer-events: auto; background: var(--green); color: var(--cream); border-radius: var(--radius-pill); box-shadow: var(--shadow-md); padding: 12px 12px 12px 22px; display: flex; align-items: center; gap: 16px; border: 2px solid var(--gold); }
+.cart-bar-count { font-weight: 700; }
+.cart-bar-btn { background: var(--cream); color: var(--green); border: none; font-weight: 700; padding: 10px 18px; border-radius: var(--radius-pill); cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; }
+.cart-bar-btn:hover { background: var(--white); }
 
 /* ── PANEL DE PEDIDO ── */
 .cart-overlay { position: fixed; inset: 0; background: rgba(43,38,32,0.45); z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
@@ -328,7 +336,7 @@ h3 { font-size: 1.3rem; }
 .how-list p { font-size: 13px; color: var(--text-muted); }
 
 /* ── FOOTER ── */
-.footer { background: var(--green); color: rgba(245,240,232,0.75); padding: 48px 0 0; border-top: 4px solid var(--gold); border-radius: var(--radius) var(--radius) 0 0; margin: 0 24px; }
+.footer { background: var(--green); color: rgba(245,240,232,0.75); padding: 48px 0 0; border-top: 4px solid var(--gold); border-radius: var(--radius); margin: 0 24px; }
 .footer-inner { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 32px; margin-bottom: 32px; }
 .footer-brand { display: flex; flex-direction: column; gap: 12px; }
 .footer-logo { display: flex; align-items: center; gap: 10px; }

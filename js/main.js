@@ -219,12 +219,20 @@ function clearCart() {
 }
 
 function updateCartBadge() {
+  const total = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+
   const btn = document.getElementById("navCartBtn");
   const count = document.getElementById("navCartCount");
-  if (!btn || !count) return;
-  const total = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
-  count.textContent = total;
-  btn.classList.toggle("has-items", total > 0);
+  if (btn && count) {
+    count.textContent = total;
+    btn.classList.toggle("has-items", total > 0);
+  }
+
+  const bar = document.getElementById("cartBar");
+  if (bar) {
+    document.getElementById("cartBarCount").textContent = total + (total === 1 ? " producto" : " productos");
+    bar.classList.toggle("visible", total > 0);
+  }
 }
 
 function toggleCart() {
