@@ -122,6 +122,7 @@ h1, h2, h3 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; l
 .product-desc { color: var(--v2-text-muted); }
 .product-price { font-weight: 800; color: var(--v2-ink); border-top: 1px dashed var(--v2-border); padding-top: 10px; margin-top: 4px; }
 .qty-stepper { background: var(--v2-cream); border-radius: var(--v2-radius); }
+.qty-value { color: var(--v2-ink); }
 .qty-btn { background: var(--v2-green); color: var(--v2-cream); border-radius: 6px; }
 .qty-btn:hover { background: var(--v2-green-mid); }
 .btn-consult { border: 1px solid var(--v2-green); color: var(--v2-ink); border-radius: var(--v2-radius); }
