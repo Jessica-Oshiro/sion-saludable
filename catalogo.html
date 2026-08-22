@@ -15,8 +15,9 @@
   <meta name="description" content="Explorá nuestro catálogo de productos naturales, panificados artesanales y comidas saludables.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style-v2.css">
 </head>
 <body>
 
@@ -117,32 +118,45 @@
 
   <section class="page-header">
     <div class="hero-stripe"></div>
-    <div class="container">
-      <h1>Nuestro catálogo</h1>
-      <p>Elegí lo que necesitás y armamos tu pedido para confirmarlo por WhatsApp.</p>
+    <div class="container page-header-row">
+      <div>
+        <h1>Elegí, sumá al carrito<br>y cerramos por WhatsApp</h1>
+      </div>
+      <div class="catalog-search-v2-wrap">
+        <input type="text" id="catalogSearch" class="catalog-search" placeholder="Buscar producto..." aria-label="Buscar producto">
+      </div>
     </div>
   </section>
 
   <section class="catalog-section section">
     <div class="container">
 
-      <!-- BÚSQUEDA -->
-      <div class="catalog-search-wrap">
-        <input type="text" id="catalogSearch" class="catalog-search" placeholder="Buscar producto..." aria-label="Buscar producto">
-      </div>
+      <div class="catalog-layout-v2">
+        <!-- SIDEBAR DE CATEGORÍAS -->
+        <aside class="catalog-sidebar-v2">
+          <div>
+            <span class="catalog-sidebar-v2-label">Categorías</span>
+            <div class="filters">
+              <button class="filter-btn active" data-filter="all">Todos</button>
+              <button class="filter-btn" data-filter="naturales">Productos naturales</button>
+              <button class="filter-btn" data-filter="panificados">Panificados y dulces</button>
+              <button class="filter-btn" data-filter="fermentados">Fermentados</button>
+              <button class="filter-btn" data-filter="pastas">Pastas frescas</button>
+              <button class="filter-btn" data-filter="viandas">Viandas</button>
+            </div>
+          </div>
+          <div class="catalog-sidebar-v2-note">
+            <strong>¿No encontrás algo?</strong>
+            <span>Preguntanos: muchas cosas las traemos a pedido.</span>
+            <a href="https://wa.me/5491127481482?text=Hola%2C%20estoy%20buscando%20un%20producto%20que%20no%20veo%20en%20el%20cat%C3%A1logo" target="_blank">Escribir</a>
+          </div>
+        </aside>
 
-      <!-- FILTROS -->
-      <div class="filters">
-        <button class="filter-btn active" data-filter="all">Todos</button>
-        <button class="filter-btn" data-filter="naturales">Productos naturales</button>
-        <button class="filter-btn" data-filter="panificados">Panificados y dulces</button>
-        <button class="filter-btn" data-filter="fermentados">Fermentados</button>
-        <button class="filter-btn" data-filter="pastas">Pastas frescas</button>
-        <button class="filter-btn" data-filter="viandas">Viandas</button>
+        <!-- GRID DE PRODUCTOS -->
+        <div class="products-subgrid">
+          <div class="products-grid" id="catalogProducts"></div>
+        </div>
       </div>
-
-      <!-- GRID DE PRODUCTOS -->
-      <div class="products-grid" id="catalogProducts"></div>
 
     </div>
   </section>
